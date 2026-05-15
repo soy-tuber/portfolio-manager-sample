@@ -15,11 +15,11 @@
 
 ## 株価データ
 
-[みんかぶ](https://minkabu.jp) から4銘柄の株価をスクレイピング（15分キャッシュ）。
+Yahoo Finance の chart API から4銘柄（`<コード>.T`）の株価を取得（15分キャッシュ）。
 取得失敗時は `app.py` 内の `fallback_price` に自動フォールバックします。
 
-> Streamlit Community Cloud は海外サーバーで稼働するため、みんかぶ側でアクセスが
-> 制限されると株価がフォールバック値（固定）になる場合があります。
+Yahoo Finance は海外サーバーからでも日本株の当日終値を返すため、
+Streamlit Community Cloud 上でも株価が反映されます。
 
 ## ローカル実行
 

@@ -1,19 +1,16 @@
 """ポートフォリオ管理 / 日産PSR分析 — Streamlit Cloud版
 
 担保=配当3銘柄、被担保=日産。LTV 55-60%目標、年1,000万ペースで日産買い増し。
-データソース: みんかぶ (15分キャッシュ)
+データソース: Yahoo Finance (15分キャッシュ)
 """
 
 from __future__ import annotations
 
-import json
-import re
 from datetime import datetime, timedelta, timezone
 
 import pandas as pd
 import requests
 import streamlit as st
-from bs4 import BeautifulSoup
 
 # =========================
 # 定数
@@ -36,70 +33,34 @@ FY25 = {'rev': 12.0079, 'op': 580, 'opm': 0.48, 'net': -5331, 'eps': -152.58}
 FY26G = {'rev': 13.0, 'op': 2000, 'opm': 1.54, 'net': 200, 'eps': 5.72}
 
 JST = timezone(timedelta(hours=9))
-PRICE_RE = re.compile(r'([\d,]+(?:\.\d+)?)')
 
 
 # =========================
-# スクレイピング
+# 株価取得 (Yahoo Finance)
 # =========================
-@st.cache_data(ttl=900, show_spinner='みんかぶから株価取得中...')
+@st.cache_data(ttl=900, show_spinner='Yahoo Financeから株価取得中...')
 def fetch_prices() -> tuple[dict[str, float | None], str]:
-    """みんかぶから4銘柄の株価取得。15分キャッシュ。"""
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (compatible; PortfolioDash/1.0)',
-        'Accept-Language': 'ja,en;q=0.9',
-    }
+    """Yahoo Finance から4銘柄の株価取得。15分キャッシュ。
+
+    みんかぶのスクレイピングは Streamlit Cloud (海外サーバー) から弾かれるため、
+    海外からでも日本株 (.T) を返す Yahoo Finance の chart API を使用する。
+    """
+    headers = {'User-Agent': 'Mozilla/5.0'}
     results: dict[str, float | None] = {}
     for code in STOCKS.keys():
         try:
-            r = requests.get(f'https://minkabu.jp/stock/{code}', headers=headers, timeout=15)
+            r = requests.get(
+                f'https://query1.finance.yahoo.com/v8/finance/chart/{code}.T',
+                headers=headers, timeout=15,
+            )
             r.raise_for_status()
-            soup = BeautifulSoup(r.text, 'lxml')
-            price = _extract_price(soup)
-            results[code] = price
+            meta = r.json()['chart']['result'][0]['meta']
+            price = meta.get('regularMarketPrice')
+            results[code] = float(price) if price is not None else None
         except Exception:
             results[code] = None
     fetched_at = datetime.now(JST).strftime('%Y-%m-%d %H:%M JST')
     return results, fetched_at
-
-
-def _extract_price(soup: BeautifulSoup) -> float | None:
-    """複数戦略で株価要素を抽出。HTML構造変化への耐性。"""
-    selectors = [
-        '.stock_price',
-        'div.stock_price',
-        '[class*="stock_price"]',
-        '.fsxl.fwb',
-        'meta[itemprop="price"]',
-    ]
-    for sel in selectors:
-        elem = soup.select_one(sel)
-        if not elem:
-            continue
-        text = elem.get('content') if elem.name == 'meta' else elem.get_text(strip=True)
-        if not text:
-            continue
-        m = PRICE_RE.search(text)
-        if m:
-            try:
-                p = float(m.group(1).replace(',', ''))
-                if 10 <= p <= 100000:
-                    return p
-            except ValueError:
-                continue
-    # フォールバック: JSON-LD構造化データ
-    for script in soup.find_all('script', type='application/ld+json'):
-        try:
-            data = json.loads(script.string or '{}')
-            items = data if isinstance(data, list) else [data]
-            for item in items:
-                if isinstance(item, dict):
-                    offers = item.get('offers') or item.get('mainEntity', {}).get('offers')
-                    if offers and 'price' in offers:
-                        return float(offers['price'])
-        except Exception:
-            continue
-    return None
 
 
 # =========================
@@ -126,7 +87,7 @@ failed_codes = [c for c, p in prices_raw.items() if p is None]
 col_sub, col_btn = st.columns([4, 1])
 with col_sub:
     msg = f"担保=配当3銘柄、被担保=日産。LTV 55-60%目標、年1,000万ペースで日産買い増し  \n"
-    msg += f":gray[更新: {fetched_at} (data: みんかぶ)"
+    msg += f":gray[更新: {fetched_at} (data: Yahoo Finance)"
     if failed_codes:
         names = ', '.join(STOCKS[c]['name'] for c in failed_codes)
         msg += f" / フォールバック適用: {names}"
@@ -501,7 +462,7 @@ FY27復配開始でPSR+PER併用評価へ。Section 2の終了時シナリオで
 # Footer
 st.markdown("---")
 st.caption(
-    "Data: みんかぶ (https://minkabu.jp, 15分キャッシュ) / "
+    "Data: Yahoo Finance (15分キャッシュ) / "
     "日産自動車 2025年度決算短信・プレゼン資料 (2026/5/13) / IRBank / 有報第126期"
 )
 st.caption("実際の株価は市場環境・為替・関税政策等により大きく変動します。投資判断はご自身の責任で。")
