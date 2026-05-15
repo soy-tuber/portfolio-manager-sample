@@ -409,7 +409,8 @@ cur_price = prices[NISSAN_CODE]
 current_mc = cur_price * shares
 current_psr = current_mc / (FY25['rev'] * 1_000_000_000_000)
 upside = (target_price / cur_price - 1) * 100
-guidance_price = FY26G['eps'] * n_per
+# FY26ガイダンスはEPS過小でPERが異常値 → PSR評価。現在PSRを横ばい適用しFY26売上に対応する株価。
+guidance_price = current_psr * FY26G['rev'] * 1_000_000_000_000 / shares
 guidance_upside = (guidance_price / cur_price - 1) * 100
 fisher_theory = revenue_yen * 0.05 * 15
 fisher_price = fisher_theory / shares
@@ -417,7 +418,7 @@ nissan_new_value = STOCKS[NISSAN_CODE]['shares'] * target_price
 
 c1, c2, c3 = st.columns(3)
 c1.metric("想定株価 (FY27〜)", f"¥{target_price:,.0f}", f"{upside:+.1f}%")
-c2.metric("ガイダンス株価 (FY26)", f"¥{guidance_price:,.0f}", f"{guidance_upside:+.1f}%")
+c2.metric("ガイダンス株価 (FY26 / PSR)", f"¥{guidance_price:,.0f}", f"{guidance_upside:+.1f}%")
 c3.metric("想定営業利益", f"{op_profit/100_000_000:,.0f}億",
           "FY26G 2,000億", delta_color="off")
 c4, c5, c6 = st.columns(3)
@@ -452,7 +453,7 @@ def _actual_price(net_oku, shares_n, per):
 stages_def = [
     ('FY24 実績', FY24['rev'], FY24['opm'], FY24['net'], 'actual', 'PSR'),
     ('FY25 実績', FY25['rev'], FY25['opm'], FY25['net'], 'actual', 'PSR'),
-    ('FY26 ガイダンス', FY26G['rev'], FY26G['opm'], FY26G['net'], 'guidance', 'PSR (PER異常値)'),
+    ('FY26 ガイダンス', FY26G['rev'], FY26G['opm'], FY26G['net'], 'guidance', 'PSR (現在PSR横ばい)'),
     ('FY27 ユーザー想定', n_rev, n_opm, None, 'scenario', 'PSR+PER 復配'),
     ('FY28 正常化', n_rev * 1.03, min(n_opm + 0.5, 8), None, 'scenario', 'PER中心'),
 ]
@@ -461,7 +462,7 @@ tl_rows = []
 for label, rev, opm, net, typ, axis in stages_def:
     op = rev * 1e12 * opm / 100
     if typ == 'guidance':
-        price = FY26G['eps'] * n_per
+        price = guidance_price  # FY26はPSR評価 (現在PSR横ばい)
         net_oku = net
     elif typ == 'actual':
         price = _actual_price(net, shares, n_per)
@@ -487,7 +488,7 @@ st.dataframe(pd.DataFrame(tl_rows), use_container_width=True, hide_index=True)
 st.subheader("サマリー")
 opm_diff = n_opm - FY26G['opm']
 st.markdown(f"""
-会社ガイダンス FY26 OPM {FY26G['opm']:.2f}% / EPS¥{FY26G['eps']} → PER{n_per:.0f}倍で**¥{FY26G['eps']*n_per:.0f}** ({guidance_upside:+.1f}%)。
+会社ガイダンス FY26 OPM {FY26G['opm']:.2f}% / 売上{FY26G['rev']:.2f}兆 → PSR{current_psr:.3f}横ばいで**¥{guidance_price:,.0f}** ({guidance_upside:+.1f}%)。
 ユーザー想定 FY27〜 OPM {n_opm:.1f}% → **¥{target_price:.0f}** ({upside:+.1f}%)。
 OPM差 **{opm_diff:.1f}pt** がRe:Nissan後の上振れ期待値。
 
