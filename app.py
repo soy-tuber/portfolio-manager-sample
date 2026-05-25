@@ -25,7 +25,7 @@ STOCKS: dict[str, dict] = {
 COLLAT_CODES = ['2674', '8291', '5869']
 NISSAN_CODE = '7201'
 
-LOAN_BALANCE = 55_000_000     # 5,500万
+LOAN_BALANCE = 50_000_000     # 5,000万
 LOAN_FLOOR = 50_000_000       # 下限 5,000万
 CASH_BUFFER = 10_000_000      # 1,000万
 
