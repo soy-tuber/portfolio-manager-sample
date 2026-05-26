@@ -73,6 +73,22 @@ st.set_page_config(
     layout="wide",
 )
 
+st.markdown(
+    """
+<style>
+    html { font-size: 13px; }
+    [data-testid="stMetricValue"] { font-size: 1.3rem; }
+    [data-testid="stMetricLabel"] { font-size: 0.8rem; }
+    [data-testid="stMetricDelta"] { font-size: 0.75rem; }
+    .stDataFrame, .stDataFrame td, .stDataFrame th { font-size: 0.82rem; }
+    h1 { font-size: 1.6rem; }
+    h2 { font-size: 1.25rem; }
+    h3 { font-size: 1.05rem; }
+</style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # =========================
 # ヘッダー & 価格取得
 # =========================
@@ -460,10 +476,78 @@ FY27復配開始でPSR+PER併用評価へ。Section 2の終了時シナリオで
 **Section 2 連携:** 想定株価¥{target_price:.0f}でRe:Nissan成功シナリオが動作。フィッシャー基準¥{fisher_price:.0f}は超強気ケース。
 """)
 
+# =========================
+# Section 4: 日産自動車 月次 生産・販売・輸出 (前年同月比)
+# =========================
+st.header("04  日産自動車 月次 生産・販売・輸出 (前年同月比)", divider='orange')
+
+# 前年同月比 (%). 100超=前年超え, 100未満=下回り. None=未公表
+NISSAN_YOY_2025 = {
+    'グローバル 生産':   [88.7, 87.9, 88.7, 84.6, 83.5, 102.7, 95.8, 100.8, 100.5, 96.1, 95.8, 110.7],
+    '国内 生産':         [95.5, 86.8, 91.1, 80.9, 83.2, 95.9, 98.4, 81.8, 81.9, 80.7, 68.4, 91.5],
+    '海外 生産':         [87.0, 88.3, 88.1, 85.6, 83.6, 104.5, 95.1, 104.9, 105.6, 100.6, 103.9, 116.6],
+    'グローバル 販売':   [94.1, 92.2, 96.6, 92.8, 94.0, 95.1, 100.5, 102.8, 96.4, 95.2, 95.1, 93.3],
+    '国内 販売(軽含)':   [96.7, 86.7, 88.5, 81.0, 87.8, 96.3, 81.1, 77.8, 78.4, 77.9, 73.5, 90.0],
+    '海外 販売':         [93.6, 93.3, 98.2, 94.4, 94.8, 94.9, 104.3, 106.6, 100.1, 97.8, 98.5, 93.6],
+    '輸出':              [72.9, 88.4, 95.2, 85.2, 69.7, 80.4, 114.7, 115.0, 66.4, 72.0, 74.9, 78.2],
+}
+NISSAN_YOY_2026 = {
+    'グローバル 生産':   [92.8, 88.3, 105.4, None, None, None, None, None, None, None, None, None],
+    '国内 生産':         [90.5, 94.9, 99.5, None, None, None, None, None, None, None, None, None],
+    '海外 生産':         [93.4, 86.4, 107.0, None, None, None, None, None, None, None, None, None],
+    'グローバル 販売':   [100.6, 92.6, 93.0, None, None, None, None, None, None, None, None, None],
+    '国内 販売(軽含)':   [88.9, 100.4, 99.9, None, None, None, None, None, None, None, None, None],
+    '海外 販売':         [102.8, 91.2, 91.8, None, None, None, None, None, None, None, None, None],
+    '輸出':              [119.1, 116.2, 87.6, None, None, None, None, None, None, None, None, None],
+}
+
+st.info(
+    "**データ:** 日産自動車IR「生産・販売・輸出実績」より前年同月比（%）。100超 = 前年同月超え、100未満 = 下回り。  \n"
+    "**最新公表:** 2026年3月度（2026/4/27発表）。**2026年4月度は5月下旬、5月度は6月下旬発表予定** — "
+    "更新時は `NISSAN_YOY_2026` の該当配列を差し替え。"
+)
+
+months_jp = [f"{i}月" for i in range(1, 13)]
+
+def _yoy_metric(v):
+    if v is None:
+        return '未公表', None, 'off'
+    delta = v - 100
+    return f"{v:.1f}%", f"{delta:+.1f}pt", 'normal'
+
+# --- 注目月: 販売3指標 × 1月-5月 ---
+st.subheader("販売 前年同月比 (1月-5月)")
+for cat in ['グローバル 販売', '国内 販売(軽含)', '海外 販売']:
+    st.markdown(f"**{cat}**")
+    cols = st.columns(5)
+    for i in range(5):
+        val, delta, color = _yoy_metric(NISSAN_YOY_2026[cat][i])
+        cols[i].metric(months_jp[i], val, delta, delta_color=color)
+
+# --- 2026年 全指標テーブル ---
+st.subheader("2026年 月次 前年同月比 (全指標)")
+def _cell(v):
+    return f"{v:.1f}" if v is not None else '—'
+df_2026 = pd.DataFrame([
+    {'指標': cat, **{m: _cell(NISSAN_YOY_2026[cat][i]) for i, m in enumerate(months_jp)}}
+    for cat in NISSAN_YOY_2026
+])
+st.dataframe(df_2026, use_container_width=True, hide_index=True)
+
+# --- 2025年 参考 ---
+with st.expander("2025年 月次 前年同月比 (参考)"):
+    df_2025 = pd.DataFrame([
+        {'指標': cat, **{m: _cell(NISSAN_YOY_2025[cat][i]) for i, m in enumerate(months_jp)}}
+        for cat in NISSAN_YOY_2025
+    ])
+    st.dataframe(df_2025, use_container_width=True, hide_index=True)
+
+
 # Footer
 st.markdown("---")
 st.caption(
     "Data: Yahoo Finance (15分キャッシュ) / "
-    "日産自動車 2025年度決算短信・プレゼン資料 (2026/5/13) / IRBank / 有報第126期"
+    "日産自動車 2025年度決算短信・プレゼン資料 (2026/5/13) / "
+    "生産・販売・輸出実績（月次速報） / IRBank / 有報第126期"
 )
 st.caption("実際の株価は市場環境・為替・関税政策等により大きく変動します。投資判断はご自身の責任で。")
