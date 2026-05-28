@@ -492,18 +492,18 @@ NISSAN_YOY_2025 = {
     '輸出':              [72.9, 88.4, 95.2, 85.2, 69.7, 80.4, 114.7, 115.0, 66.4, 72.0, 74.9, 78.2],
 }
 NISSAN_YOY_2026 = {
-    'グローバル 生産':   [92.8, 88.3, 105.4, None, None, None, None, None, None, None, None, None],
-    '国内 生産':         [90.5, 94.9, 99.5, None, None, None, None, None, None, None, None, None],
-    '海外 生産':         [93.4, 86.4, 107.0, None, None, None, None, None, None, None, None, None],
-    'グローバル 販売':   [100.6, 92.6, 93.0, None, None, None, None, None, None, None, None, None],
-    '国内 販売(軽含)':   [88.9, 100.4, 99.9, None, None, None, None, None, None, None, None, None],
-    '海外 販売':         [102.8, 91.2, 91.8, None, None, None, None, None, None, None, None, None],
-    '輸出':              [119.1, 116.2, 87.6, None, None, None, None, None, None, None, None, None],
+    'グローバル 生産':   [92.8, 88.3, 105.4, 95.8, None, None, None, None, None, None, None, None],
+    '国内 生産':         [90.5, 94.9, 99.5, 105.4, None, None, None, None, None, None, None, None],
+    '海外 生産':         [93.4, 86.4, 107.0, 93.4, None, None, None, None, None, None, None, None],
+    'グローバル 販売':   [100.6, 92.6, 93.0, 92.4, None, None, None, None, None, None, None, None],
+    '国内 販売(軽含)':   [88.9, 100.4, 99.9, 102.4, None, None, None, None, None, None, None, None],
+    '海外 販売':         [102.8, 91.2, 91.8, 91.2, None, None, None, None, None, None, None, None],
+    '輸出':              [119.1, 116.2, 87.6, 85.5, None, None, None, None, None, None, None, None],
 }
 
 st.info(
     "**データ:** 日産自動車IR「生産・販売・輸出実績」より前年同月比（%）。100超 = 前年同月超え、100未満 = 下回り。  \n"
-    "**最新公表:** 2026年3月度（2026/4/27発表）。**2026年4月度は5月下旬、5月度は6月下旬発表予定** — "
+    "**最新公表:** 2026年4月度（2026/5/28発表）。**2026年5月度は6月下旬発表予定** — "
     "更新時は `NISSAN_YOY_2026` の該当配列を差し替え。"
 )
 
