@@ -264,15 +264,13 @@ final_nav = final_pf - loan_y
 initial_nav = nav  # Section 1で計算済み
 
 st.subheader(f"{sim_years}年後の状態 (簿価ベース)")
-c1, c2, c3, c4 = st.columns(4)
+c1, c2, c3 = st.columns(3)
 c1.metric(f"{sim_years}年後 担保", f"{collateral_y/10000:,.0f}万",
           f"{(collateral_y/collateral-1)*100:+.1f}%")
 c2.metric(f"{sim_years}年後 借入", f"{loan_y/10000:,.0f}万",
           f"累計借り増し {total_new_loan/10000:,.0f}万", delta_color="off")
 c3.metric(f"{sim_years}年後 日産株数", f"{nis_shares_y:,}",
           f"+{nis_shares_y - STOCKS[NISSAN_CODE]['shares']:,}株")
-c4.metric("日産時価 (簿価)", f"{final_nis_cost/10000:,.0f}万",
-          f"@¥{nis_buy_price}基準", delta_color="off")
 
 c5, c6, c7, c8 = st.columns(4)
 c5.metric("PF合計 (簿価)", f"{final_pf/10000:,.0f}万")
