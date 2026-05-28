@@ -186,134 +186,66 @@ for label, cap, color in [('60%枠', cap60, '🟢'), ('70%枠', cap70, '🟡'), 
 
 
 # =========================
-# Section 2: DOE配当シナリオ
+# Section 2: 配当 / 担保推移
 # =========================
-st.header("02  DOE配当シナリオ (時系列累積)", divider='orange')
+st.header("02  配当 / 担保推移シミュレーション", divider='orange')
 
 st.info(
-    "**戦略モデル:** 配当3銘柄は純資産増加で増配 → 配当還元法で株価も同率上昇 (デフォルト年5%)。"
-    "**LTV目標**に向けて毎年借り増し可能額を算出 → **配当金+借り増し+収入補填**で年1,000万を日産購入。"
-    "日産買い増し単価350-400レンジ (デフォルト¥375)。"
+    "**モデル:** 配当3銘柄は純資産増加で増配 → 配当還元法で株価も同率上昇 (デフォルト年5%)。"
+    "担保増価で LTV が低下し、60%枠余力が拡大する推移を確認できます。借入残高は固定。"
 )
 
 sc1, sc2, sc3 = st.columns(3)
 with sc1:
     div_g = st.slider("配当成長率 (%/年)", 0.0, 15.0, 5.0, 0.5)
-    price_g = st.slider("担保株価成長率 (%/年)", -5.0, 15.0, 5.0, 0.5)
 with sc2:
-    ltv_target = st.slider("LTV目標 (%)", 40.0, 70.0, 57.5, 0.5)
-    annual_budget_man = st.slider("年間日産購入額 (万円)", 0, 3000, 1000, 50)
+    price_g = st.slider("担保株価成長率 (%/年)", -5.0, 15.0, 5.0, 0.5)
 with sc3:
-    nis_buy_price = st.slider("日産買い増し単価 (¥)", 200, 800, 375, 5)
     sim_years = st.slider("シミュレーション年数", 1, 10, 5, 1)
 
 # --- 時系列計算 ---
 collateral_y = collateral
-dividend_y = total_dividend  # 年間配当合計 (円)
-loan_y = LOAN_BALANCE
-nis_shares_y = STOCKS[NISSAN_CODE]['shares']
-total_supplement = 0.0
-total_new_loan = 0.0
+dividend_y = total_dividend
 total_div_recv = 0.0
 
 timeline_rows = [{
     '年': '現在',
     '担保 (万)': f"{collateral_y/10000:,.0f}",
-    '配当 (万)': f"{dividend_y/10000:,.0f}",
-    '目標借入 (万)': '—',
-    '借り増し (万)': '—',
-    '収入補填 (万)': '—',
-    '日産購入 (万)': '—',
-    '累計日産株数': f"{nis_shares_y:,}",
-    '借入残 (万)': f"{loan_y/10000:,.0f}",
-    'LTV (%)': f"{loan_y/collateral_y*100:.1f}",
+    '年間配当 (万)': f"{dividend_y/10000:,.0f}",
+    'LTV (%)': f"{LOAN_BALANCE/collateral_y*100:.1f}",
+    '60%枠余力 (万)': f"{(collateral_y*0.6 - LOAN_BALANCE)/10000:+,.0f}",
 }]
 
 for y in range(1, sim_years + 1):
     collateral_y *= 1 + price_g / 100
     dividend_y *= 1 + div_g / 100
-    target_loan = max(LOAN_FLOOR, collateral_y * ltv_target / 100)
-    new_loan = max(0, target_loan - loan_y)
-    nis_purchase = annual_budget_man * 10000
-    supplement = nis_purchase - dividend_y - new_loan
-    purchase_shares = int(nis_purchase / nis_buy_price) if nis_buy_price > 0 else 0
-
-    loan_y += new_loan
-    nis_shares_y += purchase_shares
-    total_supplement += supplement
-    total_new_loan += new_loan
     total_div_recv += dividend_y
 
     timeline_rows.append({
         '年': f"+{y}年",
         '担保 (万)': f"{collateral_y/10000:,.0f}",
-        '配当 (万)': f"{dividend_y/10000:,.0f}",
-        '目標借入 (万)': f"{target_loan/10000:,.0f}",
-        '借り増し (万)': f"{new_loan/10000:,.0f}",
-        '収入補填 (万)': f"{supplement/10000:+,.0f}",
-        '日産購入 (万)': f"{nis_purchase/10000:,.0f}",
-        '累計日産株数': f"{nis_shares_y:,}",
-        '借入残 (万)': f"{loan_y/10000:,.0f}",
-        'LTV (%)': f"{loan_y/collateral_y*100:.1f}",
+        '年間配当 (万)': f"{dividend_y/10000:,.0f}",
+        'LTV (%)': f"{LOAN_BALANCE/collateral_y*100:.1f}",
+        '60%枠余力 (万)': f"{(collateral_y*0.6 - LOAN_BALANCE)/10000:+,.0f}",
     })
 
 # 結果カード
-final_nis_cost = nis_shares_y * nis_buy_price
-final_pf = collateral_y + final_nis_cost + CASH_BUFFER
-final_nav = final_pf - loan_y
-initial_nav = nav  # Section 1で計算済み
-
-st.subheader(f"{sim_years}年後の状態 (簿価ベース)")
-c1, c2, c3 = st.columns(3)
+st.subheader(f"{sim_years}年後の状態")
+c1, c2, c3, c4 = st.columns(4)
 c1.metric(f"{sim_years}年後 担保", f"{collateral_y/10000:,.0f}万",
           f"{(collateral_y/collateral-1)*100:+.1f}%")
-c2.metric(f"{sim_years}年後 借入", f"{loan_y/10000:,.0f}万",
-          f"累計借り増し {total_new_loan/10000:,.0f}万", delta_color="off")
-c3.metric(f"{sim_years}年後 日産株数", f"{nis_shares_y:,}",
-          f"+{nis_shares_y - STOCKS[NISSAN_CODE]['shares']:,}株")
+c2.metric(f"{sim_years}年後 年間配当", f"{dividend_y/10000:,.0f}万",
+          f"{(dividend_y/total_dividend-1)*100:+.1f}%")
+c3.metric(f"{sim_years}年後 LTV", f"{LOAN_BALANCE/collateral_y*100:.1f}%",
+          f"現在 {ltv:.1f}%", delta_color="off")
+c4.metric(f"{sim_years}年後 60%枠余力",
+          f"{(collateral_y*0.6 - LOAN_BALANCE)/10000:+,.0f}万",
+          f"現在 {room60/10000:+,.0f}万", delta_color="off")
 
-c5, c6, c7, c8 = st.columns(4)
-c5.metric("PF合計 (簿価)", f"{final_pf/10000:,.0f}万")
-c6.metric("NAV (簿価)", f"{final_nav/10000:,.0f}万",
-          f"{(final_nav/initial_nav-1)*100:+.1f}%")
-c7.metric("累計配当受領", f"{total_div_recv/10000:,.0f}万",
-          f"{sim_years}年計", delta_color="off")
-c8.metric("累計収入補填", f"{total_supplement/10000:,.0f}万",
-          f"{sim_years}年計", delta_color="off")
+st.caption(f"累計配当受領 ({sim_years}年計): {total_div_recv/10000:,.0f}万")
 
 st.subheader("年次推移")
 st.dataframe(pd.DataFrame(timeline_rows), use_container_width=True, hide_index=True)
-st.caption("収入補填 = 1,000万 - 配当金 - 借り増し額。マイナス = 配当+借り増しが1,000万超過 (余剰)。")
-
-# --- 終了時 日産株価別シナリオ ---
-st.subheader("終了時 日産株価別 評価額")
-st.info(
-    "**FY25-26 (2026/3, 2027/3)** はリストラ+関税継続で**PSR一本評価**。"
-    "**FY27 (2028/3) 復配開始**で**PSR+PER併用評価**へ移行。"
-)
-
-end_scenarios = [
-    ('横ばい', prices[NISSAN_CODE], 'PSR (横ばい)'),
-    ('FY26ガイダンス', FY26G['eps'] * 10, 'PER10倍 (FY26EPS)'),
-    ('Re:Nissan成功', 1128, 'PSR+PER (復配後)'),
-    ('フィッシャー基準', 1672, 'PSR=0.75 (FY25売上)'),
-]
-end_rows = []
-for name, price, axis in end_scenarios:
-    nis_val = nis_shares_y * price
-    pf_s = collateral_y + nis_val + CASH_BUFFER
-    nav_s = pf_s - loan_y
-    growth = (nav_s / initial_nav - 1) * 100
-    end_rows.append({
-        'シナリオ': name,
-        '想定株価': f"¥{price:,.0f}",
-        '評価軸': axis,
-        '日産時価 (万)': f"{nis_val/10000:,.0f}",
-        'PF合計 (万)': f"{pf_s/10000:,.0f}",
-        'NAV (万)': f"{nav_s/10000:,.0f}",
-        'NAV成長率': f"{growth:+.1f}%",
-    })
-st.dataframe(pd.DataFrame(end_rows), use_container_width=True, hide_index=True)
 
 
 # =========================
@@ -469,9 +401,7 @@ st.markdown(f"""
 OPM差 **{opm_diff:.1f}pt** がRe:Nissan後の上振れ期待値。
 
 **評価軸の遷移:** FY25-26は赤字/超低EPSのためPSRが第一指標 (現在PSR {current_psr:.3f}、フィッシャー基準0.75以下)。
-FY27復配開始でPSR+PER併用評価へ。Section 2の終了時シナリオで日産株価別のNAV感応度確認可能。
-
-**Section 2 連携:** 想定株価¥{target_price:.0f}でRe:Nissan成功シナリオが動作。フィッシャー基準¥{fisher_price:.0f}は超強気ケース。
+FY27復配開始でPSR+PER併用評価へ。フィッシャー基準株価¥{fisher_price:.0f}は超強気ケース。
 """)
 
 # =========================
