@@ -1,7 +1,7 @@
 """ポートフォリオ管理 / 日産PSR分析 — Streamlit Cloud版
 
-担保=配当3銘柄。日産は担保差入れ済みだがLTV計算には算入しない(LTV対象外)。
-LTV 55-60%目標、年1,000万ペースで日産買い増し。
+担保=配当4銘柄。日産は担保差入れ済みだがLTV計算には算入しない(LTV対象外)。
+LTV 55-60%目標。
 データソース: Yahoo Finance (15分キャッシュ)
 """
 
@@ -20,12 +20,13 @@ STOCKS: dict[str, dict] = {
     '2674': {'name': 'ハードオフ', 'shares': 15000, 'dividend': 92, 'role': '担保', 'fallback_price': 2406},
     '8291': {'name': '日産東京HD', 'shares': 50000, 'dividend': 30, 'role': '担保', 'fallback_price': 553},
     '5869': {'name': '早稲田学習研究会', 'shares': 20000, 'dividend': 62, 'role': '担保', 'fallback_price': 1328},
+    '7203': {'name': 'トヨタ自動車', 'shares': 5000, 'dividend': 100, 'role': '担保', 'fallback_price': 2849},
     '7201': {'name': '日産自動車', 'shares': 100000, 'dividend': 0, 'role': 'LTV対象外', 'fallback_price': 381},
 }
-COLLAT_CODES = ['2674', '8291', '5869']
+COLLAT_CODES = ['2674', '8291', '5869', '7203']
 NISSAN_CODE = '7201'
 
-LOAN_BALANCE = 50_000_000     # 5,000万
+LOAN_BALANCE = 65_000_000     # 6,500万 (5,000万 + 1,500万借り増しでトヨタ取得)
 LOAN_FLOOR = 50_000_000       # 下限 5,000万
 CASH_BUFFER = 5_000_000       # 500万
 
@@ -103,7 +104,7 @@ failed_codes = [c for c, p in prices_raw.items() if p is None]
 
 col_sub, col_btn = st.columns([4, 1])
 with col_sub:
-    msg = f"担保=配当3銘柄。日産は担保差入れ済みだがLTV対象外。LTV 55-60%目標、年1,000万ペースで日産買い増し  \n"
+    msg = f"担保=配当4銘柄。日産は担保差入れ済みだがLTV対象外。LTV 55-60%目標。  \n"
     msg += f":gray[更新: {fetched_at} (data: Yahoo Finance)"
     if failed_codes:
         names = ', '.join(STOCKS[c]['name'] for c in failed_codes)
@@ -162,7 +163,7 @@ pf_total = collateral + nissan_value + CASH_BUFFER
 nav = pf_total - LOAN_BALANCE
 
 c1, c2, c3, c4 = st.columns(4)
-c1.metric("担保プール", f"{collateral/10000:,.0f}万", "配当3銘柄", delta_color="off")
+c1.metric("担保プール", f"{collateral/10000:,.0f}万", "配当4銘柄", delta_color="off")
 c2.metric("日産 (LTV対象外)", f"{nissan_value/10000:,.0f}万",
           f"100,000株 @¥{prices[NISSAN_CODE]:.0f}", delta_color="off")
 c3.metric("現金バッファ", f"{CASH_BUFFER/10000:,.0f}万", "健全運用", delta_color="off")
@@ -191,7 +192,7 @@ for label, cap, color in [('60%枠', cap60, '🟢'), ('70%枠', cap70, '🟡'), 
 st.header("02  配当 / 担保推移シミュレーション", divider='orange')
 
 st.info(
-    "**モデル:** 配当3銘柄は純資産増加で増配 → 配当還元法で株価も同率上昇 (デフォルト年5%)。"
+    "**モデル:** 配当4銘柄は純資産増加で増配 → 配当還元法で株価も同率上昇 (デフォルト年5%)。"
     "担保増価で LTV が低下し、60%枠余力が拡大する推移を確認できます。借入残高は固定。"
 )
 
