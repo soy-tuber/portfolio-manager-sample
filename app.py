@@ -21,7 +21,7 @@ STOCKS: dict[str, dict] = {
     '8291': {'name': '日産東京HD', 'shares': 50000, 'dividend': 30, 'role': '担保', 'fallback_price': 553},
     '5869': {'name': '早稲田学習研究会', 'shares': 20000, 'dividend': 62, 'role': '担保', 'fallback_price': 1328},
     '7203': {'name': 'トヨタ自動車', 'shares': 5000, 'dividend': 100, 'role': '担保', 'fallback_price': 2849},
-    '7222': {'name': '日産車体', 'shares': 8000, 'dividend': 40, 'role': '担保', 'fallback_price': 998},
+    '7222': {'name': '日産車体', 'shares': 10000, 'dividend': 40, 'role': '担保', 'fallback_price': 998},
     '7201': {'name': '日産自動車', 'shares': 100000, 'dividend': 0, 'role': 'LTV対象外', 'fallback_price': 381},
 }
 COLLAT_CODES = ['2674', '8291', '5869', '7203', '7222']
