@@ -95,6 +95,10 @@ st.markdown(
 # ヘッダー & 価格取得
 # =========================
 st.title("📊 ポートフォリオ管理 / 日産PSR分析")
+st.page_link(
+    "pages/1_📖_現場と数字で日産を読む.py",
+    label="📖 参考: 現場と数字で日産を読む (SoyとOpusの対話)",
+)
 
 prices_raw, fetched_at = fetch_prices()
 prices: dict[str, float] = {
