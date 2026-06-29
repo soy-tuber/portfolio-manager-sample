@@ -14,7 +14,6 @@ st.set_page_config(
     page_title="現場と数字で日産を読む",
     page_icon="📖",
     layout="wide",
-    initial_sidebar_state="collapsed",
 )
 
 st.markdown(
@@ -28,10 +27,6 @@ st.markdown(
     h1 { font-size: 1.6rem; }
     h2 { font-size: 1.25rem; }
     h3 { font-size: 1.05rem; }
-    /* サイドバーを完全に非表示 */
-    [data-testid="stSidebar"] { display: none; }
-    [data-testid="stSidebarCollapsedControl"] { display: none; }
-    [data-testid="collapsedControl"] { display: none; }
     /* 長文記事用に行間を少し詰める */
     [data-testid="stMarkdownContainer"] p { line-height: 1.7; }
     [data-testid="stMarkdownContainer"] blockquote {
@@ -43,8 +38,6 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
-st.page_link("app.py", label="← ダッシュボードに戻る")
 
 DOC_PATH = Path(__file__).resolve().parent.parent / "docs" / "nissan_dialogue.md"
 
