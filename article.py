@@ -10,24 +10,12 @@ from pathlib import Path
 
 import streamlit as st
 
-st.set_page_config(
-    page_title="現場と数字で日産を読む",
-    page_icon="📖",
-    layout="wide",
-)
-
+# set_page_config / 共通CSS は app.py (エントリ) 側で実行済み。
+# ここでは記事ページ固有の追加スタイルだけ注入。
 st.markdown(
     """
 <style>
-    html { font-size: 13px; }
-    [data-testid="stMetricValue"] { font-size: 1.3rem; }
-    [data-testid="stMetricLabel"] { font-size: 0.8rem; }
-    [data-testid="stMetricDelta"] { font-size: 0.75rem; }
-    .stDataFrame, .stDataFrame td, .stDataFrame th { font-size: 0.82rem; }
-    h1 { font-size: 1.6rem; }
-    h2 { font-size: 1.25rem; }
-    h3 { font-size: 1.05rem; }
-    /* 長文記事用に行間を少し詰める */
+    /* 長文記事用に行間を少し詰める + 引用ブロックをテーマカラーで強調 */
     [data-testid="stMarkdownContainer"] p { line-height: 1.7; }
     [data-testid="stMarkdownContainer"] blockquote {
         border-left: 3px solid #d4a853;
@@ -39,7 +27,10 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-DOC_PATH = Path(__file__).resolve().parent.parent / "docs" / "nissan_dialogue.md"
+if st.button("← ダッシュボードに戻る"):
+    st.switch_page("dashboard.py")
+
+DOC_PATH = Path(__file__).resolve().parent / "docs" / "nissan_dialogue.md"
 
 try:
     content = DOC_PATH.read_text(encoding="utf-8")
