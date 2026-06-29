@@ -96,7 +96,7 @@ st.markdown(
 # =========================
 st.title("📊 ポートフォリオ管理 / 日産PSR分析")
 st.page_link(
-    "pages/1_📖_現場と数字で日産を読む.py",
+    "pages/1_Reference.py",
     label="📖 参考: 現場と数字で日産を読む (SoyとOpusの対話)",
 )
 
