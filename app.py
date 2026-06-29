@@ -3,9 +3,6 @@
 Streamlit Cloud (Python 3.14) で `pages/` ディレクトリ自動検出が
 url_pathname を解決できない不具合を回避するため、st.navigation API
 で明示的にページを登録する構成。
-
-- dashboard.py: ポートフォリオ管理 / 日産PSR 分析 (ダッシュボード)
-- article.py:   参考記事「現場と数字で日産を読む」
 """
 
 from __future__ import annotations
@@ -35,18 +32,42 @@ st.markdown(
 )
 
 pg = st.navigation(
-    [
-        st.Page(
-            "dashboard.py",
-            title="ポートフォリオ管理 / 日産PSR分析",
-            icon="📊",
-            default=True,
-        ),
-        st.Page(
-            "article.py",
-            title="現場と数字で日産を読む",
-            icon="📖",
-        ),
-    ]
+    {
+        "メイン": [
+            st.Page(
+                "dashboard.py",
+                title="ポートフォリオ管理 / 日産PSR分析",
+                icon="📊",
+                default=True,
+            ),
+        ],
+        "参考資料": [
+            st.Page(
+                "article_nissan_dialogue.py",
+                title="現場と数字で日産を読む",
+                icon="📖",
+            ),
+            st.Page(
+                "article_dual_core.py",
+                title="デュアルコア・モビリティ【改訂版】",
+                icon="🔋",
+            ),
+            st.Page(
+                "article_stephen_ma.py",
+                title="スティーブン・マーと中国日産",
+                icon="🇨🇳",
+            ),
+            st.Page(
+                "article_wayve.py",
+                title="Wayve × Nissan ロードマップ",
+                icon="🤖",
+            ),
+            st.Page(
+                "article_shinsho.py",
+                title="デュアルコア・モビリティ【初版PDF】",
+                icon="📄",
+            ),
+        ],
+    }
 )
 pg.run()

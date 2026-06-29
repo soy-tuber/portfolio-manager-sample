@@ -13,7 +13,13 @@
 - **02 配当 / 担保推移** — 配当成長・担保増価の時系列シミュレーション
 - **03 日産自動車分析** — FY25実績〜FY27想定のPSR/PER評価、Re:Nissanシナリオ
 - **04 日産 月次前年比** — 生産・販売・輸出の前年同月比（IR速報ベース）
-- **📖 現場と数字で日産を読む** — 参考情報の対話形式記事（`docs/nissan_dialogue.md` を編集して更新）
+
+### 参考資料（サイドバー「参考資料」群）
+- **📖 現場と数字で日産を読む** — `docs/nissan_dialogue.md`
+- **🔋 デュアルコア・モビリティ【改訂版】** — `docs/dual_core_mobility.md`
+- **🇨🇳 スティーブン・マーと中国日産** — `docs/stephen_ma_china.md`
+- **🤖 Wayve × Nissan ロードマップ** — `docs/wayve_roadmap.html` (iframe埋め込み)
+- **📄 デュアルコア・モビリティ【初版PDF】** — `docs/dual_core_shinsho.pdf` (PDFビューア埋め込み)
 
 ## 株価データ
 
