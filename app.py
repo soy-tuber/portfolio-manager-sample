@@ -95,9 +95,14 @@ st.markdown(
 # ヘッダー & 価格取得
 # =========================
 st.title("📊 ポートフォリオ管理 / 日産PSR分析")
-st.page_link(
-    "pages/1_Reference.py",
-    label="📖 参考: 現場と数字で日産を読む (SoyとOpusの対話)",
+st.markdown(
+    '<a href="/Reference" target="_self" '
+    'style="display:inline-block;padding:6px 12px;margin:4px 0;'
+    'background-color:#12141a;color:#d4a853;text-decoration:none;'
+    'border:1px solid #d4a853;border-radius:6px;font-size:0.9rem;">'
+    '📖 参考: 現場と数字で日産を読む (SoyとOpusの対話) →'
+    '</a>',
+    unsafe_allow_html=True,
 )
 
 prices_raw, fetched_at = fetch_prices()
