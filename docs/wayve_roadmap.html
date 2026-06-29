@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wayve × Nissan ソフトウェア融合 — ロードマップと課題</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E1825; --ink2:#13202F; --panel:#172534; --panel2:#1D2E40;
+    --line:#28384A; --line2:#33485E;
+    --fg:#E8EFF6; --mut:#8DA0B3; --mut2:#647889;
+    --tier1:#5A6B7D;      /* Tier1 / 委託・ブラックボックス */
+    --nissan:#2DD4BF;     /* 日産 / プラットフォーム・OS */
+    --aosp:#46B4F0;       /* AOSP・データ・クラウド */
+    --open:#9D8CF5;       /* Open標準 / SDK / 3rdパーティ */
+    --wayve:#9BDB3C;      /* Wayve / End-to-End AI */
+    --risk:#F2A23C;       /* 課題・リスク */
+    --d:'JetBrains Mono',ui-monospace,monospace;
+    --g:'Space Grotesk',sans-serif;
+    --b:'Inter','Hiragino Sans','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:
+      radial-gradient(120% 80% at 80% -10%, #16283a 0%, rgba(22,40,58,0) 55%),
+      var(--ink);
+    color:var(--fg);font-family:var(--b);line-height:1.7;
+    -webkit-font-smoothing:antialiased;letter-spacing:.01em}
+  .wrap{max-width:920px;margin:0 auto;padding:0 22px}
+  .mono{font-family:var(--d);font-weight:500;letter-spacing:.04em}
+
+  /* ---------- HERO ---------- */
+  header{padding:64px 0 30px;border-bottom:1px solid var(--line)}
+  .eyebrow{font-family:var(--d);font-size:12px;color:var(--mut2);letter-spacing:.16em;
+    text-transform:uppercase;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .eyebrow b{color:var(--nissan);font-weight:700}
+  h1{font-family:var(--g);font-weight:700;font-size:clamp(30px,7vw,52px);line-height:1.04;
+    margin:20px 0 0;letter-spacing:-.02em}
+  h1 .x{color:var(--mut2);font-weight:400;padding:0 .12em}
+  .lede{font-size:clamp(15px,2.4vw,18px);color:var(--mut);max-width:48ch;margin:20px 0 0}
+  .lede em{color:var(--fg);font-style:normal;border-bottom:2px solid var(--nissan);
+    padding-bottom:1px}
+  .heroblocks{display:flex;gap:6px;margin:30px 0 4px}
+  .heroblocks span{height:10px;border-radius:2px;flex:1;opacity:.92}
+  .glyphnote{font-family:var(--d);font-size:11px;color:var(--mut2);display:flex;
+    justify-content:space-between;letter-spacing:.08em}
+
+  /* ---------- SECTION SCAFFOLD ---------- */
+  section{padding:54px 0;border-bottom:1px solid var(--line)}
+  .stag{font-family:var(--d);font-size:12px;color:var(--mut2);letter-spacing:.14em;
+    text-transform:uppercase}
+  .stag i{color:var(--nissan);font-style:normal}
+  h2{font-family:var(--g);font-weight:600;font-size:clamp(22px,4.5vw,30px);
+    margin:10px 0 6px;letter-spacing:-.01em}
+  .sub{color:var(--mut);max-width:60ch;margin:0 0 26px}
+
+  /* ---------- THESIS ---------- */
+  .meta2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+  @media(max-width:560px){.meta2{grid-template-columns:1fr}}
+  .mcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:18px 18px 16px}
+  .mcard .tag{font-family:var(--d);font-size:11px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--mut2)}
+  .mcard h3{font-family:var(--g);font-weight:600;font-size:18px;margin:8px 0 6px}
+  .mcard p{margin:0;font-size:14px;color:var(--mut)}
+  .mcard.cn{border-left:3px solid var(--aosp)}
+  .mcard.lg{border-left:3px solid var(--open)}
+
+  /* ---------- ROADMAP ---------- */
+  .legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin:0 0 26px;
+    font-family:var(--d);font-size:11.5px;color:var(--mut);letter-spacing:.03em}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .phase{display:grid;grid-template-columns:128px 1fr;gap:18px;
+    padding:22px 0;border-top:1px solid var(--line)}
+  .phase:first-of-type{border-top:none}
+  @media(max-width:620px){.phase{grid-template-columns:1fr;gap:12px}}
+  .pmark .pn{font-family:var(--g);font-weight:700;font-size:30px;line-height:1;
+    color:var(--nissan)}
+  .pmark .pd{font-family:var(--d);font-size:12px;color:var(--mut2);margin-top:6px;
+    letter-spacing:.04em}
+  .pmark .ph{font-family:var(--g);font-size:15px;font-weight:600;margin-top:3px}
+  .pbody h4{font-family:var(--g);font-weight:600;font-size:16px;margin:0 0 8px}
+  .pbody ul{margin:0;padding:0;list-style:none}
+  .pbody li{position:relative;padding-left:18px;font-size:14px;color:var(--mut);
+    margin:7px 0}
+  .pbody li::before{content:"";position:absolute;left:0;top:9px;width:7px;height:7px;
+    border-radius:2px;background:var(--c,var(--nissan))}
+  .pbody li b{color:var(--fg);font-weight:600}
+  .ptags{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px}
+  .ptags em{font-family:var(--d);font-style:normal;font-size:10.5px;letter-spacing:.05em;
+    color:var(--mut);border:1px solid var(--line2);border-radius:5px;padding:3px 7px}
+
+  /* ---------- OWNERSHIP STACK ---------- */
+  .stacks{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:6px}
+  @media(max-width:620px){.stacks{grid-template-columns:1fr}}
+  .col{background:var(--ink2);border:1px solid var(--line);border-radius:12px;
+    padding:14px 13px 16px}
+  .col .ct{font-family:var(--g);font-weight:600;font-size:15px;margin:0 0 2px}
+  .col .cs{font-family:var(--d);font-size:10.5px;color:var(--mut2);letter-spacing:.06em;
+    margin-bottom:12px}
+  .lay{border-radius:6px;padding:9px 10px;margin:5px 0;font-size:12px;
+    font-weight:500;color:#0c1622;display:flex;justify-content:space-between;
+    align-items:center;font-family:var(--g)}
+  .lay .o{font-family:var(--d);font-size:9px;font-weight:700;letter-spacing:.06em;
+    opacity:.72;text-transform:uppercase}
+  .lay.dim{color:var(--fg)}
+
+  /* ---------- INTERFACE / LEGO ---------- */
+  .iface{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+  .ib{border-radius:12px;padding:16px 18px;border:1px solid var(--line2);
+    display:flex;gap:14px;align-items:flex-start}
+  .ib .ic{font-family:var(--d);font-size:10px;font-weight:700;letter-spacing:.08em;
+    padding:5px 8px;border-radius:6px;color:#0c1622;white-space:nowrap;margin-top:2px}
+  .ib h4{font-family:var(--g);font-weight:600;font-size:16px;margin:0 0 4px}
+  .ib p{margin:0;font-size:13.5px;color:var(--mut)}
+  .connector{text-align:center;font-family:var(--d);font-size:11px;color:var(--open);
+    letter-spacing:.1em;margin:-4px 0}
+  .connector span{border:1px dashed var(--open);border-radius:20px;padding:4px 14px}
+
+  /* ---------- CHALLENGES ---------- */
+  .tier3{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 24px}
+  .tier3 div{flex:1;min-width:150px;border:1px solid var(--line);border-radius:10px;
+    padding:13px 14px;background:var(--panel)}
+  .tier3 .lb{font-family:var(--d);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+  .tier3 p{margin:6px 0 0;font-size:13px;color:var(--mut)}
+  .t-clear .lb{color:var(--nissan)} .t-live .lb{color:var(--risk)} .t-debt .lb{color:#E5705B}
+  .risk{border:1px solid var(--line);border-left:3px solid var(--risk);
+    border-radius:10px;padding:18px 18px 16px;margin:12px 0;background:var(--ink2)}
+  .risk .rh{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+  .risk .rn{font-family:var(--d);font-size:12px;font-weight:700;color:var(--risk)}
+  .risk h4{font-family:var(--g);font-weight:600;font-size:17px;margin:0}
+  .risk p{margin:9px 0 0;font-size:14px;color:var(--mut)}
+  .risk p b{color:var(--fg);font-weight:600}
+  .watch{font-family:var(--d);font-size:11.5px;color:var(--nissan);margin-top:10px;
+    letter-spacing:.02em}
+  .watch::before{content:"▸ 検証ポイント  ";color:var(--mut2)}
+
+  /* ---------- FOOTER ---------- */
+  footer{padding:46px 0 70px}
+  footer h2{font-size:18px}
+  .src{font-family:var(--d);font-size:11.5px;color:var(--mut2);line-height:2;
+    letter-spacing:.02em}
+  .disc{font-size:12.5px;color:var(--mut2);margin-top:18px;max-width:62ch}
+
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+  a{color:var(--nissan)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow"><span>技術ロードマップ整理</span><span>·</span><b>WAYVE × NISSAN</b><span>·</span><span class="mono">2025–2027</span></div>
+    <h1>ソフトウェア融合<span class="x">/</span>ロードマップと課題</h1>
+    <p class="lede">クルマを<em>物流コンテナ</em>と<em>レゴブロック</em>へ。規格化された箱に積み替え、開いた継ぎ手で組み替える ── 日産のSDV基盤に、Wayveの頭脳を載せるまでの道筋と、まだ嵌っていないブロック。</p>
+    <div class="heroblocks">
+      <span style="background:var(--tier1)"></span>
+      <span style="background:var(--nissan)"></span>
+      <span style="background:var(--aosp)"></span>
+      <span style="background:var(--open)"></span>
+      <span style="background:var(--wayve)"></span>
+    </div>
+    <div class="glyphnote"><span>委託・ブラックボックス</span><span>内製・標準・AI</span></div>
+  </div>
+</header>
+
+<!-- THESIS -->
+<section class="reveal">
+  <div class="wrap">
+    <div class="stag"><i>00</i> &nbsp;前提 / なぜコンテナとレゴか</div>
+    <h2>分離と規格化、ふたつの動き</h2>
+    <p class="sub">SDVの本質は二つの分離に尽きる。ハードの量産サイクル（年単位）からソフトの更新サイクル（週単位）を切り離すこと。そして機能を規格ブロックに割り、誰が作っても噛み合うようにすること。</p>
+    <div class="meta2">
+      <div class="mcard cn">
+        <div class="tag">Container → 積み替え</div>
+        <h3>OS・アプリを箱に詰める</h3>
+        <p>コンテナ単位で機能を封入し、車種・SoC・リージョンをまたいで同じ箱を積み替える。FOTA（丸ごと書換え）から、アプリ単位の更新へ。</p>
+      </div>
+      <div class="mcard lg">
+        <div class="tag">Lego → 組み替え</div>
+        <h3>継ぎ手を規格化する</h3>
+        <p>窓・ワイパーから操舵まで Vehicle API で抽象化し、SDKから触れる規格の凸凹に。JASPARで他社とも継ぎ手を共通化し、3rdパーティが嵌め込める。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section class="reveal">
+  <div class="wrap">
+    <div class="stag"><i>01</i> &nbsp;ロードマップ / 四つの局面</div>
+    <h2>基盤づくりから AI-DV まで</h2>
+    <p class="sub">公開情報から再構成した時間軸。順序そのものが意味を持つ ── 下の層（クラウドCI・OS内製）が固まらないと、上の層（AIドライブ）は載らない。</p>
+
+    <div class="phase">
+      <div class="pmark"><div class="pn">0</div><div class="pd mono">2025 — NOW</div><div class="ph">基盤の公開</div></div>
+      <div class="pbody">
+        <h4>クラウドと汎化能力、それぞれの証明</h4>
+        <ul>
+          <li style="--c:var(--nissan)"><b>Nissan Scalable Open Software Platform</b>をAWS re:Invent 2025で共同発表。SDK / Data / OS の三層構成。</li>
+          <li style="--c:var(--aosp)"><b>クラウドCI</b>でテスト時間を約75%削減、5,000人超のエンジニアが使う共通開発ポータル、コンテナ技術の量産車適用。</li>
+          <li style="--c:var(--wayve)"><b>Wayve AI-500 Roadshow</b>：6〜12月に500都市・145万km。うち219都市（43%）は現地データ無しのzero-shot走行。</li>
+        </ul>
+        <div class="ptags"><em>re:Invent 2025</em><em>AWS</em><em>GAIA-3 / 15B</em><em>zero-shot</em></div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="pmark"><div class="pn">1</div><div class="pd mono">NEXT</div><div class="ph">内製化</div></div>
+      <div class="pbody">
+        <h4>Tier1依存から、標準OSへ寄せる</h4>
+        <ul>
+          <li style="--c:var(--aosp)">コックピット（CDC）に<b>Android Automotive OS</b>を採用。独自カスタマイズを減らし、System Image を <b>GSI（Google標準）</b>へ寄せてOS更新に追従。</li>
+          <li style="--c:var(--nissan)">HAL / VHAL・フレームワーク層の<b>ホワイトボックス化と手の内化</b>。委託型から協業型へ。</li>
+          <li style="--c:var(--open)"><b>Vehicle API</b>で車両制御を抽象化し、SDK経由でアプリから触れるように。</li>
+        </ul>
+        <div class="ptags"><em>HAL / VHAL</em><em>GSI / vanilla</em><em>大阪・梅田 拠点</em></div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="pmark"><div class="pn">2</div><div class="pd mono">AFTER NEXT</div><div class="ph">開いた基盤</div></div>
+      <div class="pbody">
+        <h4>所有権が日産＋標準へ移る</h4>
+        <ul>
+          <li style="--c:var(--nissan)">Product Image まで日産自身が握り、Tier1ロックインから脱却。</li>
+          <li style="--c:var(--open)"><b>JASPAR</b>等で他社OEMともAPIを共通化（オープン化）し、3rdパーティが参入できるエコシステムへ。</li>
+          <li style="--c:var(--aosp)"><b>コンテナ単位OTA</b>でアプリを迅速・安全に更新。CTS / VTS / XTS の認証を、クラウドCIとHILSで回す。</li>
+        </ul>
+        <div class="ptags"><em>JASPAR</em><em>container OTA</em><em>CTS / VTS / XTS</em></div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="pmark"><div class="pn">3</div><div class="pd mono">FY2027 目標</div><div class="ph">AI-DV</div></div>
+      <div class="pbody">
+        <h4>SDVの先、AI-Defined Vehicle</h4>
+        <ul>
+          <li style="--c:var(--wayve)"><b>AIドライブ</b>：End-to-End AIによる自動運転を2027年度中の搭載目標（ProPILOT強化、Wayveソフト採用）。</li>
+          <li style="--c:var(--wayve)"><b>AIパートナー</b>：ドライバーの意図を汲むエージェント機能。</li>
+          <li style="--c:var(--open)"><b>開発へのAI活用</b>：Copilot / Cursor / ChatGPT で開発自体を高速化。「作るAI」と「載せるAI」を同じ射程に。</li>
+        </ul>
+        <div class="ptags"><em>End-to-End</em><em>EV / PHEV / HV / ICE</em><em>embodiment transfer</em></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OWNERSHIP STACK -->
+<section class="reveal">
+  <div class="wrap">
+    <div class="stag"><i>02</i> &nbsp;所有権の移動 / 誰がブロックを握るか</div>
+    <h2>スタックの色が移っていく</h2>
+    <p class="sub">日産の公開図（Current → Next → After Next）を、所有者で色分けして再構成。塗りが Tier1 から 日産・標準・AOSP へ移り、最上段に Wayve のAIが乗る。</p>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--tier1)"></i>Tier1（委託）</span>
+      <span><i class="sw" style="background:var(--nissan)"></i>日産（内製）</span>
+      <span><i class="sw" style="background:var(--aosp)"></i>AOSP / 標準</span>
+      <span><i class="sw" style="background:var(--open)"></i>Open API</span>
+      <span><i class="sw" style="background:var(--wayve)"></i>Wayve / AI</span>
+    </div>
+    <div class="stacks">
+      <div class="col">
+        <div class="ct">Current</div><div class="cs">独自カスタマイズ依存</div>
+        <div class="lay" style="background:var(--tier1)">Apps<span class="o">Tier1</span></div>
+        <div class="lay" style="background:var(--tier1)">Android F/W<span class="o">独自</span></div>
+        <div class="lay" style="background:var(--tier1)">HAL / Kernel<span class="o">Tier1</span></div>
+        <div class="lay" style="background:var(--tier1)">Product Image<span class="o">Tier1</span></div>
+        <div class="lay dim" style="background:var(--ink);border:1px solid var(--line2)">SoC<span class="o">HW</span></div>
+      </div>
+      <div class="col">
+        <div class="ct">Next</div><div class="cs">標準へ寄せる</div>
+        <div class="lay" style="background:var(--aosp)">Apps<span class="o">AOSP</span></div>
+        <div class="lay" style="background:var(--aosp)">Android F/W<span class="o">vanilla</span></div>
+        <div class="lay" style="background:var(--nissan)">HAL / Kernel<span class="o">日産</span></div>
+        <div class="lay" style="background:var(--tier1)">Product Image<span class="o">Tier1</span></div>
+        <div class="lay dim" style="background:var(--ink);border:1px solid var(--line2)">SoC<span class="o">HW</span></div>
+      </div>
+      <div class="col">
+        <div class="ct">After Next</div><div class="cs">内製＋オープン</div>
+        <div class="lay" style="background:var(--wayve)">AI Drive<span class="o">Wayve</span></div>
+        <div class="lay" style="background:var(--open)">Vehicle API<span class="o">JASPAR</span></div>
+        <div class="lay" style="background:var(--nissan)">HAL / Kernel<span class="o">日産</span></div>
+        <div class="lay" style="background:var(--nissan)">Product Image<span class="o">日産</span></div>
+        <div class="lay dim" style="background:var(--ink);border:1px solid var(--line2)">SoC<span class="o">HW</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INTERFACE -->
+<section class="reveal">
+  <div class="wrap">
+    <div class="stag"><i>03</i> &nbsp;継ぎ手 / どこで噛み合うか</div>
+    <h2>Vehicle API という凸凹</h2>
+    <p class="sub">融合点は一箇所。Wayveの世界モデルが、日産の基盤に対して規格化された継ぎ手（API）越しに接続する。ここが開いていれば載り、閉じていれば載らない。</p>
+    <div class="iface">
+      <div class="ib" style="border-left:3px solid var(--wayve)">
+        <span class="ic" style="background:var(--wayve)">BRAIN</span>
+        <div><h4>Wayve AI Driver ／ 世界モデル</h4><p>カメラ入力から走行を直接出すEnd-to-End。GAIA-3で評価、車種をまたぐembodiment transfer。駆動方式に非依存。</p></div>
+      </div>
+      <div class="connector"><span>Vehicle API ／ SDK</span></div>
+      <div class="ib" style="border-left:3px solid var(--nissan)">
+        <span class="ic" style="background:var(--nissan)">PLATFORM</span>
+        <div><h4>Nissan Scalable Open Software Platform</h4><p>SDK / Data / OS。Android Automotive、コンテナOTA、全センサーへの開放アクセス。EV・PHEV・HV・ICE 全車に同じ基盤。</p></div>
+      </div>
+      <div class="connector"><span>テレメトリ ／ デジタルツイン</span></div>
+      <div class="ib" style="border-left:3px solid var(--aosp)">
+        <span class="ic" style="background:var(--aosp)">CLOUD</span>
+        <div><h4>AWS ／ Engineering Cloud</h4><p>クラウドCIでテスト75%減、5,000人ポータル、車両データの再学習ループ（収集→学習→OTA再配信）。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHALLENGES -->
+<section class="reveal">
+  <div class="wrap">
+    <div class="stag"><i>04</i> &nbsp;課題 / まだ嵌っていないブロック</div>
+    <h2>残った賭けは二つに絞られた</h2>
+    <p class="sub">「思想が正しいか」は、ほぼ決着した。工程表・API・認証・拠点・時間軸まで具体に降りている。残るのは「適用場面」と「中途半端な実装が生む負債」。</p>
+    <div class="tier3">
+      <div class="t-clear"><div class="lb">観念的 — ほぼ解消</div><p>構想ではなく移行プロジェクト。Current→After Next の工程と2027の時間軸が公式に存在。</p></div>
+      <div class="t-live"><div class="lb">適用場面 — 主戦場</div><p>実装はコックピット系が中心。安全クリティカル系への拡張がこれから。</p></div>
+      <div class="t-debt"><div class="lb">有害 — トレードオフ</div><p>オープン化とコンテナOTAは、裏返せば攻撃面の拡大。安全・セキュリティ負債の管理が条件。</p></div>
+    </div>
+
+    <div class="risk">
+      <div class="rh"><span class="rn">R-1</span><h4>安全クリティカル系への跳躍</h4></div>
+      <p>今の実装は<b>コックピット（情報・エンタメ、Android）</b>が中心。窓・ワイパーは Vehicle API で触れても、<b>操舵・制動（ASIL-D）</b>をコンテナ／APIの世界とどう安全に接続するかは別問題。2027年度のAIドライブ搭載は、この跳躍を前提にしている。</p>
+      <div class="watch">2027 AIドライブが、コックピット中心の基盤を安全系まで拡張できているか</div>
+    </div>
+
+    <div class="risk">
+      <div class="rh"><span class="rn">R-2</span><h4>二重の認証の壁</h4></div>
+      <p>自動車側の<b>R155（サイバーセキュリティ／CSMS）・R156（ソフト更新／SUMS）</b>の型式認証と、Android側の<b>CTS / VTS / XTS 数百万件</b>を同時に通す必要がある。クラウドCIとHILSの検証体制が、この二正面をさばけるかが急所。</p>
+      <div class="watch">新基盤で型式認証とAndroid認証を通した量産実績が出るか</div>
+    </div>
+
+    <div class="risk">
+      <div class="rh"><span class="rn">R-3</span><h4>開放が招くセキュリティ負債</h4></div>
+      <p>Vehicle APIのオープン化・3rdパーティ参入・コンテナOTAは、利便性と引き換えに<b>攻撃面を広げる</b>。ISO 21434 / R155 のもとで、中途半端な実装が長期の負債にならないか。便利さは常にこのコストと背中合わせ。</p>
+      <div class="watch">オープン化の範囲と、セキュリティ運用（CSMS）の成熟度が釣り合っているか</div>
+    </div>
+
+    <div class="risk">
+      <div class="rh"><span class="rn">R-4</span><h4>Tier1脱却の実行リスク（組織）</h4></div>
+      <p>技術より組織が律速になりやすい。委託→協業、ホワイトボックス化、内製ソフト人材の確保（大阪拠点）。<b>年単位のハード量産と週単位のソフトリリースを分離する経営</b>へ移れるか。「Open」は思想であって、APIの成熟と全センサー開放が実装されて初めて意味を持つ。</p>
+      <div class="watch">内製比率とリリース頻度が、宣言通りに上がっているか</div>
+    </div>
+
+    <div class="risk">
+      <div class="rh"><span class="rn">R-5</span><h4>zero-shot ≠ driverless</h4></div>
+      <p>Wayveの500都市・219 zero-shot は<b>安全運転者が同乗</b>した汎化能力の証明であり、無人運転の商用化ではない。完全driverlessにはセンサー追加と検証が要る。GAIA-3が「生成」から「評価・検証」へ軸足を移したのは、この保証の隙間を自ら埋めにいく動き。<b>有望だが未証明</b>の握りは変わらない。</p>
+      <div class="watch">安全運転者なしの運行と、第三者検証可能な安全指標が出るか</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <h2>出典と注記</h2>
+    <p class="src">
+      Wayve — AI-500 Roadshow（500都市 / 219 zero-shot, 2025）, GAIA-3 launch（2025-12）, Nissan採用発表（2025-04）, Uber London（2025）<br>
+      Nissan × AWS — Nissan Scalable Open Software Platform / re:Invent 2025<br>
+      Nissan — Concept of Nissan's SDV, 段階的な内製開発への移行, AI-DV（TECH PLAY 2026-01 / 2026-06）<br>
+      規格 — UNECE R155 / R156, ISO 26262（ASIL）, ISO 21434, JASPAR
+    </p>
+    <p class="disc">公開情報・登壇資料・報道をもとに再構成した整理用ドキュメント。数値・時期は発表時点のもので、量産展開の実績は別途検証を要する。投資判断ではなく、論点整理を目的とする。</p>
+  </div>
+</footer>
+
+<script>
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

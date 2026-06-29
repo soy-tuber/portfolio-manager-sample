@@ -71,8 +71,21 @@ def fetch_prices() -> tuple[dict[str, float | None], str]:
 # =========================
 # set_page_config / 共通CSS は app.py (エントリ) 側で実行済み。
 st.title("📊 ポートフォリオ管理 / 日産PSR分析")
-if st.button("📖 参考: 現場と数字で日産を読む (SoyとOpusの対話) →"):
-    st.switch_page("article.py")
+
+with st.expander("📚 参考資料 (対話・記事・ロードマップ)", expanded=False):
+    ref_cols = st.columns(2)
+    with ref_cols[0]:
+        if st.button("📖 現場と数字で日産を読む", use_container_width=True):
+            st.switch_page("article_nissan_dialogue.py")
+        if st.button("🔋 デュアルコア・モビリティ【改訂版】", use_container_width=True):
+            st.switch_page("article_dual_core.py")
+        if st.button("🇨🇳 スティーブン・マーと中国日産", use_container_width=True):
+            st.switch_page("article_stephen_ma.py")
+    with ref_cols[1]:
+        if st.button("🤖 Wayve × Nissan ロードマップ", use_container_width=True):
+            st.switch_page("article_wayve.py")
+        if st.button("📄 デュアルコア・モビリティ【初版PDF】", use_container_width=True):
+            st.switch_page("article_shinsho.py")
 
 prices_raw, fetched_at = fetch_prices()
 prices: dict[str, float] = {
