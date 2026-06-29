@@ -159,7 +159,7 @@ collateral = sum(STOCKS[c]['shares'] * prices[c] for c in COLLAT_CODES)
 nissan_value = STOCKS[NISSAN_CODE]['shares'] * prices[NISSAN_CODE]
 ltv = LOAN_BALANCE / collateral * 100
 cap60, cap70, cap85 = collateral * 0.6, collateral * 0.7, collateral * 0.85
-room60 = cap60 - LOAN_BALANCE
+room70 = cap70 - LOAN_BALANCE
 pf_total = collateral + nissan_value + CASH_BUFFER
 nav = pf_total - LOAN_BALANCE
 
@@ -173,9 +173,9 @@ c4.metric("借入残高", f"{LOAN_BALANCE/10000:,.0f}万",
 
 c5, c6, c7, c8 = st.columns(4)
 c5.metric("現在LTV", f"{ltv:.1f}%", "目標 55-60%", delta_color="off")
-c6.metric("60%枠余力", f"{room60/10000:+,.0f}万",
-          "借り増し可能" if room60 >= 0 else "担保増価待ち",
-          delta_color="normal" if room60 >= 0 else "inverse")
+c6.metric("70%枠余力", f"{room70/10000:+,.0f}万",
+          "借り増し可能" if room70 >= 0 else "担保増価待ち",
+          delta_color="normal" if room70 >= 0 else "inverse")
 c7.metric("PF合計", f"{pf_total/10000:,.0f}万", "担保+日産+現金", delta_color="off")
 c8.metric("NAV (純資産)", f"{nav/10000:,.0f}万", "PF - 借入", delta_color="off")
 
@@ -194,7 +194,7 @@ st.header("02  配当 / 担保推移シミュレーション", divider='orange')
 
 st.info(
     "**モデル:** 配当5銘柄は純資産増加で増配 → 配当還元法で株価も同率上昇 (デフォルト年5%)。"
-    "担保増価で LTV が低下し、60%枠余力が拡大する推移を確認できます。借入残高は固定。"
+    "担保増価で LTV が低下し、70%枠余力が拡大する推移を確認できます。借入残高は固定。"
 )
 
 sc1, sc2, sc3 = st.columns(3)
@@ -215,7 +215,7 @@ timeline_rows = [{
     '担保 (万)': f"{collateral_y/10000:,.0f}",
     '年間配当 (万)': f"{dividend_y/10000:,.0f}",
     'LTV (%)': f"{LOAN_BALANCE/collateral_y*100:.1f}",
-    '60%枠余力 (万)': f"{(collateral_y*0.6 - LOAN_BALANCE)/10000:+,.0f}",
+    '70%枠余力 (万)': f"{(collateral_y*0.7 - LOAN_BALANCE)/10000:+,.0f}",
 }]
 
 for y in range(1, sim_years + 1):
@@ -228,7 +228,7 @@ for y in range(1, sim_years + 1):
         '担保 (万)': f"{collateral_y/10000:,.0f}",
         '年間配当 (万)': f"{dividend_y/10000:,.0f}",
         'LTV (%)': f"{LOAN_BALANCE/collateral_y*100:.1f}",
-        '60%枠余力 (万)': f"{(collateral_y*0.6 - LOAN_BALANCE)/10000:+,.0f}",
+        '70%枠余力 (万)': f"{(collateral_y*0.7 - LOAN_BALANCE)/10000:+,.0f}",
     })
 
 # 結果カード
@@ -240,9 +240,9 @@ c2.metric(f"{sim_years}年後 年間配当", f"{dividend_y/10000:,.0f}万",
           f"{(dividend_y/total_dividend-1)*100:+.1f}%")
 c3.metric(f"{sim_years}年後 LTV", f"{LOAN_BALANCE/collateral_y*100:.1f}%",
           f"現在 {ltv:.1f}%", delta_color="off")
-c4.metric(f"{sim_years}年後 60%枠余力",
-          f"{(collateral_y*0.6 - LOAN_BALANCE)/10000:+,.0f}万",
-          f"現在 {room60/10000:+,.0f}万", delta_color="off")
+c4.metric(f"{sim_years}年後 70%枠余力",
+          f"{(collateral_y*0.7 - LOAN_BALANCE)/10000:+,.0f}万",
+          f"現在 {room70/10000:+,.0f}万", delta_color="off")
 
 st.caption(f"累計配当受領 ({sim_years}年計): {total_div_recv/10000:,.0f}万")
 
