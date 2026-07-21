@@ -3,12 +3,45 @@
 from __future__ import annotations
 
 import base64
+import mimetypes
+import re
 from pathlib import Path
 
 import streamlit as st
 import streamlit.components.v1 as components
 
 DOCS_DIR = Path(__file__).resolve().parent / "docs"
+_IMG_MD_RE = re.compile(r"!\[([^\]]*)\]\(([^)]+)\)")
+
+
+def _embed_images(content: str, base_dir: Path) -> str:
+    """markdown 内の相対パス画像を base64 data URI に置換。
+
+    Streamlit Cloud では docs/ 配下の画像を直接配信できないため、
+    ![alt](images/foo.webp) のような相対参照を、その場で読み込んで
+    data URI に埋め込む。存在しないファイルはそのまま残す。
+    """
+
+    def replace(match: re.Match[str]) -> str:
+        alt = match.group(1)
+        ref = match.group(2).strip()
+        if ref.startswith(("http://", "https://", "data:")):
+            return match.group(0)
+        img_path = (base_dir / ref).resolve()
+        try:
+            data = img_path.read_bytes()
+        except (FileNotFoundError, IsADirectoryError, OSError):
+            return match.group(0)
+        mime, _ = mimetypes.guess_type(img_path.name)
+        if mime is None:
+            if img_path.suffix.lower() == ".webp":
+                mime = "image/webp"
+            else:
+                mime = "application/octet-stream"
+        b64 = base64.b64encode(data).decode("ascii")
+        return f"![{alt}](data:{mime};base64,{b64})"
+
+    return _IMG_MD_RE.sub(replace, content)
 
 
 def setup_article_page() -> None:
@@ -32,13 +65,19 @@ def setup_article_page() -> None:
 
 
 def render_markdown(filename: str) -> None:
-    """docs/<filename> の markdown を読み込んで描画。"""
+    """docs/<filename> の markdown を読み込んで描画。
+
+    markdown 内の相対パス画像参照 (docs/ からの相対) は base64 data URI に
+    展開して埋め込む。docs/images/foo.webp を ![alt](images/foo.webp) の
+    形で参照できる。
+    """
     path = DOCS_DIR / filename
     try:
         content = path.read_text(encoding="utf-8")
     except FileNotFoundError:
         st.error(f"記事ファイルが見つかりません: {path}")
         st.stop()
+    content = _embed_images(content, DOCS_DIR)
     st.caption(f"Source: `docs/{filename}` — 更新するには markdown を編集して push。")
     st.markdown(content)
 
