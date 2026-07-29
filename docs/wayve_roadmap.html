@@ -230,10 +230,10 @@
         <h4>所有権が日産＋標準へ移る</h4>
         <ul>
           <li style="--c:var(--nissan)">Product Image まで日産自身が握り、Tier1ロックインから脱却。</li>
-          <li style="--c:var(--open)"><b>JASPAR</b>等で他社OEMともAPIを共通化（オープン化）し、3rdパーティが参入できるエコシステムへ。</li>
+          <li style="--c:var(--open)"><b>JASPAR</b>等で他社OEMともAPIを共通化（オープン化）し、3rdパーティが参入できるエコシステムへ。<b>ホンダが日産の基盤を採用</b>（2026）で、この「他社OEM」が具体化。</li>
           <li style="--c:var(--aosp)"><b>コンテナ単位OTA</b>でアプリを迅速・安全に更新。CTS / VTS / XTS の認証を、クラウドCIとHILSで回す。</li>
         </ul>
-        <div class="ptags"><em>JASPAR</em><em>container OTA</em><em>CTS / VTS / XTS</em></div>
+        <div class="ptags"><em>JASPAR</em><em>container OTA</em><em>CTS / VTS / XTS</em><em>Honda 合流</em></div>
       </div>
     </div>
 
@@ -363,6 +363,46 @@
   </div>
 </section>
 
+<!-- ADDENDUM: HONDA JOINS -->
+<section class="reveal">
+  <div class="wrap">
+    <div class="stag"><i>05</i> &nbsp;追記 / ホンダ合流 ―― 「Open」が意味を回収した瞬間</div>
+    <h2>凸凹が規格化されたことで、二社の箱に同じブロックが嵌まる</h2>
+    <p class="sub">日産のScalable Open Software Platformを、ホンダが採用する。「Open」は3rdパーティ（Wayve）に開くだけでなく、他のOEM（ホンダ）にも開く設計だった ── その答え合わせが、この一件で完了した。</p>
+
+    <div class="meta2">
+      <div class="mcard cn">
+        <div class="tag">Signal</div>
+        <h3>過剰に開いていた設計の、正体</h3>
+        <p>SDK / Data / OS を三層で切り出し、Vehicle APIをOEM横断で標準化し、コンテナで機能を規格箱に詰める ── 一社専用にしては「開きすぎ」だった設計。ホンダ採用で、その過剰さの理由が回収された。</p>
+      </div>
+      <div class="mcard lg">
+        <div class="tag">Meaning</div>
+        <h3>JASPAR API共通化の、着地点</h3>
+        <p>「他社OEMともAPIを共通化」と抽象的に語られていた将来像に、具体名が入った。凸凹（Vehicle API）が規格化されたことで、日産の箱にもホンダの箱にも、同じブロックが嵌まる。</p>
+      </div>
+    </div>
+
+    <div class="risk" style="border-left-color:var(--wayve);margin-top:22px">
+      <div class="rh"><span class="rn" style="color:var(--wayve)">W-1</span><h4>Wayveにとって、出口が二社連合の全車種へ倍化</h4></div>
+      <p>WayveのAI Driverは<b>駆動方式に非依存</b>で、Vehicle API越しに接続する。OSが共通なら、その上に乗るAI Driverも共通になりうる。日産の全パワートレイン（EV/PHEV/HV/ICE）に加えて、<b>ホンダの全パワートレインにも同じAPIで載る可能性</b>が開いた。「Wayveが日産を選んだ理由」の一番目 ── 出口が広い ── が、一社の全車種から二社連合の全車種へ拡大した。</p>
+      <div class="watch">ホンダ側のAI Driver採用が、単なるOS共通化から、AI層まで揃うところまで進むか</div>
+    </div>
+
+    <div class="risk" style="border-left-color:var(--nissan);margin-top:12px">
+      <div class="rh"><span class="rn" style="color:var(--nissan)">W-2</span><h4>「駆動方式は本質でない」が、業界構造として実装される</h4></div>
+      <p>ホンダと日産は主力パワートレインの構成が違う ── ホンダはパラレルHVのe:HEVが強く、日産はシリーズのe-POWER。それでも同じOSで共通化するということは、<b>OS層が駆動方式の差を吸収する設計になっている</b>ことの証明。駆動の差はVehicle APIの下に沈み、上のソフトからは見えない。「駆動方式でメーカーを分ける議論」がSDVの世界では意味を持たなくなる、その転換点。</p>
+      <div class="watch">Vehicle API の抽象化が、実車のECU / センサー配線レベルまで本当に吸収できるか</div>
+    </div>
+
+    <div class="risk" style="border-left-color:var(--open);margin-top:12px">
+      <div class="rh"><span class="rn" style="color:var(--open)">W-3</span><h4>プラットフォーム戦略の、教科書的な着地</h4></div>
+      <p>凸凹（Vehicle API）を作った側（日産）、その凸凹を採用した側（ホンダ）、凸凹に合わせてブロック（AI Driver）を作った側（Wayve）── レゴが機能する三者の役割分担が揃った。日産が単なる「OEM」ではなく<b>プラットフォーマー</b>として立てるかどうか、という問いに対して、初めての具体的な"顧客OEM"が現れた。R-4（Tier1脱却）の実行リスクも、外部OEMが乗る前提で作った基盤なら、内製化の後戻りが極めて困難になる ── 「引き返せなくなる」意味で、開放が組織の意思決定を縛る効果もある。</p>
+      <div class="watch">ホンダ以外のOEM（三菱、ルノー、その先）が乗るか。一社限定なら「Open」の意味は半分に留まる</div>
+    </div>
+  </div>
+</section>
+
 <!-- FOOTER -->
 <footer>
   <div class="wrap">
@@ -371,6 +411,7 @@
       Wayve — AI-500 Roadshow（500都市 / 219 zero-shot, 2025）, GAIA-3 launch（2025-12）, Nissan採用発表（2025-04）, Uber London（2025）<br>
       Nissan × AWS — Nissan Scalable Open Software Platform / re:Invent 2025<br>
       Nissan — Concept of Nissan's SDV, 段階的な内製開発への移行, AI-DV（TECH PLAY 2026-01 / 2026-06）<br>
+      Honda — 日産Scalable Open Software Platform採用（2026）<br>
       規格 — UNECE R155 / R156, ISO 26262（ASIL）, ISO 21434, JASPAR
     </p>
     <p class="disc">公開情報・登壇資料・報道をもとに再構成した整理用ドキュメント。数値・時期は発表時点のもので、量産展開の実績は別途検証を要する。投資判断ではなく、論点整理を目的とする。</p>
