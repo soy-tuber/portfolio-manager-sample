@@ -413,18 +413,18 @@ NISSAN_YOY_2025 = {
     '輸出':              [72.9, 88.4, 95.2, 85.2, 69.7, 80.4, 114.7, 115.0, 66.4, 72.0, 74.9, 78.2],
 }
 NISSAN_YOY_2026 = {
-    'グローバル 生産':   [92.8, 88.3, 105.4, 95.8, 91.4, None, None, None, None, None, None, None],
-    '国内 生産':         [90.5, 94.9, 99.5, 105.4, 103.1, None, None, None, None, None, None, None],
-    '海外 生産':         [93.4, 86.4, 107.0, 93.4, 88.9, None, None, None, None, None, None, None],
-    'グローバル 販売':   [100.6, 92.6, 93.0, 92.4, 89.7, None, None, None, None, None, None, None],
-    '国内 販売(軽含)':   [88.9, 100.4, 99.9, 102.4, 93.6, None, None, None, None, None, None, None],
-    '海外 販売':         [102.8, 91.2, 91.8, 91.2, 89.3, None, None, None, None, None, None, None],
-    '輸出':              [119.1, 116.2, 87.6, 85.5, 121.9, None, None, None, None, None, None, None],
+    'グローバル 生産':   [92.8, 88.3, 105.4, 95.8, 91.4, 85.5, None, None, None, None, None, None],
+    '国内 生産':         [90.5, 94.9, 99.5, 105.4, 103.1, 101.3, None, None, None, None, None, None],
+    '海外 生産':         [93.4, 86.4, 107.0, 93.4, 88.9, 81.7, None, None, None, None, None, None],
+    'グローバル 販売':   [100.6, 92.6, 93.0, 92.4, 89.7, 91.7, None, None, None, None, None, None],
+    '国内 販売(軽含)':   [88.9, 100.4, 99.9, 102.4, 93.6, 106.5, None, None, None, None, None, None],
+    '海外 販売':         [102.8, 91.2, 91.8, 91.2, 89.3, 89.4, None, None, None, None, None, None],
+    '輸出':              [119.1, 116.2, 87.6, 85.5, 121.9, 119.4, None, None, None, None, None, None],
 }
 
 st.info(
     "**データ:** 日産自動車IR「生産・販売・輸出実績」より前年同月比（%）。100超 = 前年同月超え、100未満 = 下回り。  \n"
-    "**最新公表:** 2026年5月度（2026/6/29発表）。**2026年6月度は7月下旬発表予定** — "
+    "**最新公表:** 2026年6月度（2026/7/30発表）。**2026年7月度は8月下旬発表予定** — "
     "更新時は `NISSAN_YOY_2026` の該当配列を差し替え。"
 )
 
@@ -436,12 +436,12 @@ def _yoy_metric(v):
     delta = v - 100
     return f"{v:.1f}%", f"{delta:+.1f}pt", 'normal'
 
-# --- 注目月: 販売3指標 × 1月-5月 ---
-st.subheader("販売 前年同月比 (1月-5月)")
+# --- 注目月: 販売3指標 × 1月-6月 ---
+st.subheader("販売 前年同月比 (1月-6月)")
 for cat in ['グローバル 販売', '国内 販売(軽含)', '海外 販売']:
     st.markdown(f"**{cat}**")
-    cols = st.columns(5)
-    for i in range(5):
+    cols = st.columns(6)
+    for i in range(6):
         val, delta, color = _yoy_metric(NISSAN_YOY_2026[cat][i])
         cols[i].metric(months_jp[i], val, delta, delta_color=color)
 
