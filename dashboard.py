@@ -21,7 +21,7 @@ STOCKS: dict[str, dict] = {
     '8291': {'name': '日産東京HD', 'shares': 50000, 'dividend': 30, 'role': '担保', 'fallback_price': 553},
     '5869': {'name': '早稲田学習研究会', 'shares': 20000, 'dividend': 62, 'role': '担保', 'fallback_price': 1328},
     '7203': {'name': 'トヨタ自動車', 'shares': 5000, 'dividend': 100, 'role': '担保', 'fallback_price': 2849},
-    '7222': {'name': '日産車体', 'shares': 10000, 'dividend': 40, 'role': '担保', 'fallback_price': 998},
+    '7222': {'name': '日産車体', 'shares': 15000, 'dividend': 40, 'role': '担保', 'fallback_price': 1000},
     '7201': {'name': '日産自動車', 'shares': 100000, 'dividend': 0, 'role': 'LTV対象外', 'fallback_price': 381},
 }
 COLLAT_CODES = ['2674', '8291', '5869', '7203', '7222']
@@ -29,7 +29,7 @@ NISSAN_CODE = '7201'
 
 LOAN_BALANCE = 80_000_000     # 8,000万
 LOAN_FLOOR = 50_000_000       # 下限 5,000万
-CASH_BUFFER = 11_000_000      # 1,100万
+CASH_BUFFER = 6_000_000       # 600万
 
 FY24 = {'rev': 12.633, 'op': 698, 'opm': 0.55, 'net': -6709, 'eps': -187.08}
 FY25 = {'rev': 12.0079, 'op': 580, 'opm': 0.48, 'net': -5331, 'eps': -152.58}
