@@ -49,12 +49,13 @@ def setup_article_page() -> None:
     st.markdown(
         """
 <style>
-    /* 長文記事用に行間を詰める + 引用ブロックをテーマカラーで強調 */
+    /* 長文記事用に行間を詰める + 引用ブロックをアクセント色で強調。
+       文字色は固定せず継承 + opacity で、Light/Dark 両テーマに対応 */
     [data-testid="stMarkdownContainer"] p { line-height: 1.7; }
     [data-testid="stMarkdownContainer"] blockquote {
         border-left: 3px solid #d4a853;
         padding-left: 1rem;
-        color: #c8c6c0;
+        opacity: 0.88;
     }
 </style>
         """,
