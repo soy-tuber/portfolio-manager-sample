@@ -42,4 +42,4 @@ streamlit run app.py
 2. **New app** → このリポジトリ / ブランチ `main` / Main file path `app.py` を指定
 3. **Deploy** をクリック
 
-テーマ設定は `.streamlit/config.toml` から自動的に読み込まれます。
+テーマは Streamlit 標準（Settings メニューから Light / Dark を切り替え可能）。
