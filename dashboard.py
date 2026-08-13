@@ -31,13 +31,6 @@ LOAN_BALANCE = 80_000_000     # 8,000万
 LOAN_FLOOR = 50_000_000       # 下限 5,000万
 CASH_BUFFER = 6_000_000       # 600万
 
-FY24 = {'rev': 12.633, 'op': 698, 'opm': 0.55, 'net': -6709, 'eps': -187.08}
-FY25 = {'rev': 12.0079, 'op': 580, 'opm': 0.48, 'net': -5331, 'eps': -152.58}
-FY26G = {'rev': 13.0, 'op': 2000, 'opm': 1.54, 'net': 200, 'eps': 5.72}
-# FY26 Q1実績 (2026/8/3発表)。億円単位、opmは%
-FY26Q1 = {'rev': 29642, 'op': 779, 'opm': 2.63, 'ord': 491, 'net': 37, 'eps': 1.06,
-          'auto_op': -82, 'fin_op': 862, 'gpm': 15.84,
-          'auto_fcf': -3239, 'auto_netcash': 9692, 'units': 701}
 
 JST = timezone(timedelta(hours=9))
 
@@ -77,7 +70,7 @@ def fetch_prices() -> tuple[dict[str, float | None], str]:
 # 記事は別リポジトリ (soy-tuber/nissan-notes) の GitHub Pages で公開
 PAGES_BASE = "https://soy-tuber.github.io/nissan-notes/"
 
-st.title("📊 ポートフォリオ管理 / 日産PSR分析")
+st.title("📊 ポートフォリオ管理")
 
 with st.expander("📚 参考資料 (対話・記事・ロードマップ)", expanded=False):
     st.caption("記事は GitHub Pages に移管しました — https://soy-tuber.github.io/nissan-notes/")
@@ -250,270 +243,25 @@ st.dataframe(pd.DataFrame(timeline_rows), use_container_width=True, hide_index=T
 
 
 # =========================
-# Section 3: 日産自動車分析
+# 日産分析は GitHub Pages へ移管
 # =========================
 st.header("03  日産自動車 (7201) 分析", divider='orange')
-
-st.warning(
-    "**評価軸の時間軸:**  \n"
-    "• **FY25 (2026/3) 実績**: 売上12.01兆、OP 580億、純損▲5,331億 → **PSR一本評価**  \n"
-    "• **FY26 (2027/3) 会社ガイダンス**: 売上13.0兆、OP 2,000億、純利益200億、EPS¥5.72 → "
-    "リストラ+米共和党関税継続、**PSR評価継続** (EPS過小でPER 61倍と異常値)  \n"
-    "• **FY27 (2028/3) ユーザー想定**: Re:Nissan効果で利益正常化、"
-    "**復配開始 → PSR+PER併用評価**へ移行"
+st.markdown(
+    "日産の決算分析・損益分岐点分析・月次データは、ポートフォリオ管理とは独立した内容のため "
+    f"[日産分析ノート]({PAGES_BASE}) に移管しました。"
 )
-
-st.subheader("2025年度 決算ハイライト (2026/5/13)")
-c1, c2, c3 = st.columns(3)
-c1.metric("売上高", "12.01兆", "-4.9%")
-c2.metric("営業利益", "580億", "OPM 0.5%", delta_color="off")
-c3.metric("当期純損失", "▲5,331億", "前期▲6,709億 (損失縮小)", delta_color="off")
-c4, c5, c6 = st.columns(3)
-c4.metric("Q4単四半期OPM", "2.0%", "OP 681億 (勢い)")
-c5.metric("ネットキャッシュ", "1.17兆", "自動車事業", delta_color="off")
-c6.metric("手元資金", "2.17兆", "+コミット2.31兆", delta_color="off")
-
-st.info(
-    "**Re:Nissan進捗:** 10ヶ月で生産7拠点統廃合発表 (17→10)、エンジニアリングコスト18%削減、"
-    "20,000人体制適正化。固定費削減**2,000億超**前倒し、変動費**550億**。下期FCF黒字転換。"
-)
-
-st.subheader("2026年度 会社ガイダンス")
-c1, c2, c3 = st.columns(3)
-c1.metric("売上高見通し", "13.00兆", "+8.3%")
-c2.metric("営業利益", "2,000億", "OPM 1.5% (+1.0pp)")
-c3.metric("当期純利益", "+200億", "黒字転換 (+5,531億)")
-c4, c5, c6 = st.columns(3)
-c4.metric("EPS", "¥5.72", "前期▲152.58円")
-c5.metric("販売台数", "3,300千台", "+4.7%")
-c6.metric("配当", "0円", "無配継続 (復配はFY27〜)", delta_color="off")
-
-st.info(
-    "**OPブリッジ (580→2,000億):** 為替 -200 / 原材料 -850 / 関税 +300 / 販売 +1,550 / "
-    "モノづくり +3,400 / インフレ -600 / 一過性 -1,480 (米環境規制 -1,030、英 -160) / その他 -700。"
-    "為替前提: 150円/USD、175円/EUR。"
-)
-
-st.subheader("2026年度 第1四半期 実績 (2026/8/3発表)")
-st.success(
-    "**通期業績見通し (売上13.0兆 / 営業利益2,000億 / 純利益200億) は維持** — ただし"
-    "**世界販売計画は330万台→315万台へ下方修正**（うち中国 71万台→58万台）。"
-    "自動車事業の営業損益は**▲82億とほぼ損益均衡**（関税影響込み）。"
-    "連結営業利益は前年同期比**+1,570億円の改善**、最終損益は**8四半期ぶりの黒字**。"
-)
-q1, q2, q3 = st.columns(3)
-q1.metric("売上高", f"{FY26Q1['rev']/10000:.2f}兆", "+9.5%")
-q2.metric("営業利益", f"{FY26Q1['op']:,}億", f"前年▲791億 (OPM {FY26Q1['opm']:.1f}%)")
-q3.metric("経常利益", f"{FY26Q1['ord']:,}億", "前年▲1,092億")
-q4, q5, q6 = st.columns(3)
-q4.metric("当期純利益", f"+{FY26Q1['net']}億", "前年▲1,158億 (8四半期ぶり黒字)")
-q5.metric("自動車事業 OP", f"▲{abs(FY26Q1['auto_op'])}億", "ほぼ損益均衡", delta_color="off")
-q6.metric("販売金融 OP", f"+{FY26Q1['fin_op']:,}億", "OPM 23.8%", delta_color="off")
-q7, q8, q9 = st.columns(3)
-q7.metric("売上総利益率", f"{FY26Q1['gpm']:.1f}%", "前年8.7% (+7.1pp)")
-q8.metric("為替", "160円/USD", "前提150円 (150円以上で差益)", delta_color="off")
-q9.metric("世界販売", f"{FY26Q1['units']:,}千台", "-0.9% (ほぼ横ばい)", delta_color="off")
-q10, q11, q12 = st.columns(3)
-q10.metric("自動車事業 FCF", f"▲{abs(FY26Q1['auto_fcf']):,}億", "前年▲3,905億 (流出継続)",
-           delta_color="off")
-q11.metric("自動車ネットキャッシュ", f"{FY26Q1['auto_netcash']:,}億", "1兆円規模を維持",
-           delta_color="off")
-q12.metric("アナリスト予想 純利益", "261億", "会社計画200億 (IBES 16人)", delta_color="off")
-
-st.info(
-    "**Q1 OPブリッジ (▲791→779億、+1,570億):** 為替 +350 / 原材料 -240 / 米国関税 +183 / "
-    "販売パフォーマンス +237 / モノづくり +820 / インフレ -140 / 一過性 +320 (米関税関連610億含む) / その他 +40。  \n"
-    "**受注:** キックス **11,000台超** / エルグランド **8,000台超**。ルークス販売 +52%、米国販売 +9.6%"
-    "（ローグ +39%、フロンティア +35%、パスファインダー +32%）。  \n"
-    "**中国:** 暦年上期販売は市場全体▲22%に対し▲15%。決算計上は暦年ベースのため、"
-    "月次の4-6月▲30%はQ2以降に反映。  \n"
-    "**会社KPI:** 関税影響を除く自動車事業OP・FCFの今期黒字化を目標（CFO「達成は可能」/ 原価低減は下期に効果、資産売却も検討）。  \n"
-    "**下押し要因:** 中東情勢で上期OP -200億・販売▲1.8万台。熊本地震の部品供給遅れで福岡県内工場の生産に**5,000台**程度の影響。"
-)
-
-st.subheader("Re:Nissan成功シナリオ (FY27〜ユーザー想定)")
-nc1, nc2, nc3 = st.columns(3)
-with nc1:
-    n_rev = st.slider("FY27〜 売上高 (兆円)", 10.0, 14.0, 13.5, 0.1)
-    n_opm = st.slider("FY27〜 営業利益率 (%)", 0.0, 8.0, 5.0, 0.1)
-with nc2:
-    n_per = st.slider("正常化PER (倍)", 5.0, 20.0, 10.0, 0.5)
-    n_net_ratio = st.slider("純利益率/営業利益率 (%)", 30, 80, 60, 5)
-with nc3:
-    n_shares_oku = st.slider("発行済株式数 (億株)", 30.0, 40.0, 35.9, 0.5)
-
-shares = n_shares_oku * 100_000_000
-revenue_yen = n_rev * 1_000_000_000_000
-op_profit = revenue_yen * n_opm / 100
-net_profit = op_profit * n_net_ratio / 100
-eps = net_profit / shares
-target_price = eps * n_per
-target_mc = target_price * shares
-target_psr = target_mc / revenue_yen
-
-cur_price = prices[NISSAN_CODE]
-current_mc = cur_price * shares
-current_psr = current_mc / (FY25['rev'] * 1_000_000_000_000)
-upside = (target_price / cur_price - 1) * 100
-# FY26ガイダンスはEPS過小でPERが異常値 → PSR評価。現在PSRを横ばい適用しFY26売上に対応する株価。
-guidance_price = current_psr * FY26G['rev'] * 1_000_000_000_000 / shares
-guidance_upside = (guidance_price / cur_price - 1) * 100
-fisher_theory = revenue_yen * 0.05 * 15
-fisher_price = fisher_theory / shares
-nissan_new_value = STOCKS[NISSAN_CODE]['shares'] * target_price
-
-c1, c2, c3 = st.columns(3)
-c1.metric("想定株価 (FY27〜)", f"¥{target_price:,.0f}", f"{upside:+.1f}%")
-c2.metric("ガイダンス株価 (FY26 / PSR)", f"¥{guidance_price:,.0f}", f"{guidance_upside:+.1f}%")
-c3.metric("想定営業利益", f"{op_profit/100_000_000:,.0f}億",
-          "FY26G 2,000億", delta_color="off")
-c4, c5, c6 = st.columns(3)
-c4.metric("想定EPS", f"¥{eps:,.1f}", "FY26G ¥5.72", delta_color="off")
-c5.metric("日産時価 (現株数100K)", f"{nissan_new_value/10000:,.0f}万",
-          "買増前ベース", delta_color="off")
-c6.metric("想定時価総額", f"{target_mc/1_000_000_000_000:.2f}兆",
-          f"現在 {current_mc/1_000_000_000_000:.2f}兆")
-
-st.subheader("フィッシャーPSR逆算 (FY25売上ベース)")
-psr_judge = '買い圏内' if target_psr <= 0.75 else '適正圏' if target_psr <= 1.5 else '割高'
-f1, f2, f3, f4 = st.columns(4)
-f1.metric("現在PSR", f"{current_psr:.3f}", "基準: 0.75以下で買い", delta_color="off")
-f2.metric("成功時PSR", f"{target_psr:.3f}", psr_judge, delta_color="off")
-f3.metric("フィッシャー理論時価", f"{fisher_theory/1_000_000_000_000:.1f}兆",
-          "売上×5%×PER15", delta_color="off")
-f4.metric("フィッシャー理論株価", f"¥{fisher_price:,.0f}",
-          "純利益率5%基準", delta_color="off")
-
-# Timeline
-st.subheader("業績推移タイムライン")
-
-def _scenario_price(rev_t, opm_pct, shares_n, per, net_ratio_pct):
-    op = rev_t * 1e12 * opm_pct / 100
-    net_yen = op * net_ratio_pct / 100
-    eps_s = net_yen / shares_n
-    return eps_s * per, net_yen / 1e8
-
-def _actual_price(net_oku, shares_n, per):
-    return (net_oku * 1e8 / shares_n) * per if net_oku > 0 else None
-
-stages_def = [
-    ('FY24 実績', FY24['rev'], FY24['opm'], FY24['net'], 'actual', 'PSR'),
-    ('FY25 実績', FY25['rev'], FY25['opm'], FY25['net'], 'actual', 'PSR'),
-    ('FY26 ガイダンス', FY26G['rev'], FY26G['opm'], FY26G['net'], 'guidance', 'PSR (現在PSR横ばい)'),
-    ('FY27 ユーザー想定', n_rev, n_opm, None, 'scenario', 'PSR+PER 復配'),
-    ('FY28 正常化', n_rev * 1.03, min(n_opm + 0.5, 8), None, 'scenario', 'PER中心'),
-]
-
-tl_rows = []
-for label, rev, opm, net, typ, axis in stages_def:
-    op = rev * 1e12 * opm / 100
-    if typ == 'guidance':
-        price = guidance_price  # FY26はPSR評価 (現在PSR横ばい)
-        net_oku = net
-    elif typ == 'actual':
-        price = _actual_price(net, shares, n_per)
-        net_oku = net
-    else:
-        price, net_oku = _scenario_price(rev, opm, shares, n_per, n_net_ratio)
-
-    price_str = f"¥{price:,.0f}" if price else ('赤字' if net_oku and net_oku < 0 else '—')
-    net_str = (f"{'+' if net_oku >= 0 else '▲'}{abs(net_oku):,.0f}億"
-               if net_oku is not None else '—')
-    tl_rows.append({
-        '時期': label,
-        '売上 (兆)': f"{rev:.2f}",
-        '営業利益 (億)': f"{op/1e8:+,.0f}",
-        'OPM (%)': f"{opm:.2f}",
-        '純損益 (億)': net_str,
-        '想定株価': price_str,
-        '評価軸': axis,
-    })
-st.dataframe(pd.DataFrame(tl_rows), use_container_width=True, hide_index=True)
-
-# Summary
-st.subheader("サマリー")
-opm_diff = n_opm - FY26G['opm']
-st.markdown(f"""
-会社ガイダンス FY26 OPM {FY26G['opm']:.2f}% / 売上{FY26G['rev']:.2f}兆 → PSR{current_psr:.3f}横ばいで**¥{guidance_price:,.0f}** ({guidance_upside:+.1f}%)。
-ユーザー想定 FY27〜 OPM {n_opm:.1f}% → **¥{target_price:.0f}** ({upside:+.1f}%)。
-OPM差 **{opm_diff:.1f}pt** がRe:Nissan後の上振れ期待値。
-
-**評価軸の遷移:** FY25-26は赤字/超低EPSのためPSRが第一指標 (現在PSR {current_psr:.3f}、フィッシャー基準0.75以下)。
-FY27復配開始でPSR+PER併用評価へ。フィッシャー基準株価¥{fisher_price:.0f}は超強気ケース。
-""")
-
-# =========================
-# Section 4: 日産自動車 月次 生産・販売・輸出 (前年同月比)
-# =========================
-st.header("04  日産自動車 月次 生産・販売・輸出 (前年同月比)", divider='orange')
-
-# 前年同月比 (%). 100超=前年超え, 100未満=下回り. None=未公表
-NISSAN_YOY_2025 = {
-    'グローバル 生産':   [88.7, 87.9, 88.7, 84.6, 83.5, 102.7, 95.8, 100.8, 100.5, 96.1, 95.8, 110.7],
-    '国内 生産':         [95.5, 86.8, 91.1, 80.9, 83.2, 95.9, 98.4, 81.8, 81.9, 80.7, 68.4, 91.5],
-    '海外 生産':         [87.0, 88.3, 88.1, 85.6, 83.6, 104.5, 95.1, 104.9, 105.6, 100.6, 103.9, 116.6],
-    'グローバル 販売':   [94.1, 92.2, 96.6, 92.8, 94.0, 95.1, 100.5, 102.8, 96.4, 95.2, 95.1, 93.3],
-    '国内 販売(軽含)':   [96.7, 86.7, 88.5, 81.0, 87.8, 96.3, 81.1, 77.8, 78.4, 77.9, 73.5, 90.0],
-    '海外 販売':         [93.6, 93.3, 98.2, 94.4, 94.8, 94.9, 104.3, 106.6, 100.1, 97.8, 98.5, 93.6],
-    '輸出':              [72.9, 88.4, 95.2, 85.2, 69.7, 80.4, 114.7, 115.0, 66.4, 72.0, 74.9, 78.2],
-}
-NISSAN_YOY_2026 = {
-    'グローバル 生産':   [92.8, 88.3, 105.4, 95.8, 91.4, 85.5, None, None, None, None, None, None],
-    '国内 生産':         [90.5, 94.9, 99.5, 105.4, 103.1, 101.3, None, None, None, None, None, None],
-    '海外 生産':         [93.4, 86.4, 107.0, 93.4, 88.9, 81.7, None, None, None, None, None, None],
-    'グローバル 販売':   [100.6, 92.6, 93.0, 92.4, 89.7, 91.7, None, None, None, None, None, None],
-    '国内 販売(軽含)':   [88.9, 100.4, 99.9, 102.4, 93.6, 106.5, None, None, None, None, None, None],
-    '海外 販売':         [102.8, 91.2, 91.8, 91.2, 89.3, 89.4, None, None, None, None, None, None],
-    '輸出':              [119.1, 116.2, 87.6, 85.5, 121.9, 119.4, None, None, None, None, None, None],
-}
-
-st.info(
-    "**データ:** 日産自動車IR「生産・販売・輸出実績」より前年同月比（%）。100超 = 前年同月超え、100未満 = 下回り。  \n"
-    "**最新公表:** 2026年6月度（2026/7/30発表）。**2026年7月度は8月下旬発表予定** — "
-    "更新時は `NISSAN_YOY_2026` の該当配列を差し替え。"
-)
-
-months_jp = [f"{i}月" for i in range(1, 13)]
-
-def _yoy_metric(v):
-    if v is None:
-        return '未公表', None, 'off'
-    delta = v - 100
-    return f"{v:.1f}%", f"{delta:+.1f}pt", 'normal'
-
-# --- 注目月: 販売3指標 × 1月-6月 ---
-st.subheader("販売 前年同月比 (1月-6月)")
-for cat in ['グローバル 販売', '国内 販売(軽含)', '海外 販売']:
-    st.markdown(f"**{cat}**")
-    cols = st.columns(6)
-    for i in range(6):
-        val, delta, color = _yoy_metric(NISSAN_YOY_2026[cat][i])
-        cols[i].metric(months_jp[i], val, delta, delta_color=color)
-
-# --- 2026年 全指標テーブル ---
-st.subheader("2026年 月次 前年同月比 (全指標)")
-def _cell(v):
-    return f"{v:.1f}" if v is not None else '—'
-df_2026 = pd.DataFrame([
-    {'指標': cat, **{m: _cell(NISSAN_YOY_2026[cat][i]) for i, m in enumerate(months_jp)}}
-    for cat in NISSAN_YOY_2026
-])
-st.dataframe(df_2026, use_container_width=True, hide_index=True)
-
-# --- 2025年 参考 ---
-with st.expander("2025年 月次 前年同月比 (参考)"):
-    df_2025 = pd.DataFrame([
-        {'指標': cat, **{m: _cell(NISSAN_YOY_2025[cat][i]) for i, m in enumerate(months_jp)}}
-        for cat in NISSAN_YOY_2025
-    ])
-    st.dataframe(df_2025, use_container_width=True, hide_index=True)
-
+n1, n2, n3 = st.columns(3)
+with n1:
+    st.link_button("📈 日産PSR分析", PAGES_BASE + "psr.html", use_container_width=True)
+with n2:
+    st.link_button("📐 CVPシナリオ分析", PAGES_BASE + "cvp.html", use_container_width=True)
+with n3:
+    st.link_button("📅 月次 生産・販売・輸出", PAGES_BASE + "monthly.html", use_container_width=True)
 
 # Footer
 st.markdown("---")
 st.caption(
-    "Data: Yahoo Finance (15分キャッシュ) / "
-    "日産自動車 2025年度決算短信・プレゼン資料 (2026/5/13) / "
-    "生産・販売・輸出実績（月次速報） / IRBank / 有報第126期"
+    "Data: Yahoo Finance (15分キャッシュ)。"
+    "日産の決算・月次データは 日産分析ノート を参照。"
 )
 st.caption("実際の株価は市場環境・為替・関税政策等により大きく変動します。投資判断はご自身の責任で。")

@@ -10,7 +10,7 @@ from __future__ import annotations
 import streamlit as st
 
 st.set_page_config(
-    page_title="PF管理 / 日産PSR分析",
+    page_title="ポートフォリオ管理",
     page_icon="📊",
     layout="wide",
 )
@@ -35,7 +35,7 @@ pg = st.navigation(
     [
         st.Page(
             "dashboard.py",
-            title="ポートフォリオ管理 / 日産PSR分析",
+            title="ポートフォリオ管理",
             icon="📊",
             default=True,
         ),
