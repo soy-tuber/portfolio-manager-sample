@@ -10,7 +10,7 @@ from __future__ import annotations
 import streamlit as st
 
 st.set_page_config(
-    page_title="PF管理 / 日産PSR分析",
+    page_title="ポートフォリオ管理",
     page_icon="📊",
     layout="wide",
 )
@@ -32,42 +32,13 @@ st.markdown(
 )
 
 pg = st.navigation(
-    {
-        "メイン": [
-            st.Page(
-                "dashboard.py",
-                title="ポートフォリオ管理 / 日産PSR分析",
-                icon="📊",
-                default=True,
-            ),
-        ],
-        "参考資料": [
-            st.Page(
-                "article_nissan_dialogue.py",
-                title="現場と数字で日産を読む",
-                icon="📖",
-            ),
-            st.Page(
-                "article_dual_core.py",
-                title="デュアルコア・モビリティ【改訂版】",
-                icon="🔋",
-            ),
-            st.Page(
-                "article_stephen_ma.py",
-                title="スティーブン・マーと中国日産",
-                icon="🇨🇳",
-            ),
-            st.Page(
-                "article_wayve.py",
-                title="Wayve × Nissan ロードマップ",
-                icon="🤖",
-            ),
-            st.Page(
-                "article_shinsho.py",
-                title="デュアルコア・モビリティ【初版PDF】",
-                icon="📄",
-            ),
-        ],
-    }
+    [
+        st.Page(
+            "dashboard.py",
+            title="ポートフォリオ管理",
+            icon="📊",
+            default=True,
+        ),
+    ]
 )
 pg.run()
