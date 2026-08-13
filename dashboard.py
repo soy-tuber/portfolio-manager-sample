@@ -74,22 +74,26 @@ def fetch_prices() -> tuple[dict[str, float | None], str]:
 # ヘッダー & 価格取得
 # =========================
 # set_page_config / 共通CSS は app.py (エントリ) 側で実行済み。
+# 記事は別リポジトリ (soy-tuber/nissan-notes) の GitHub Pages で公開
+PAGES_BASE = "https://soy-tuber.github.io/nissan-notes/"
+
 st.title("📊 ポートフォリオ管理 / 日産PSR分析")
 
 with st.expander("📚 参考資料 (対話・記事・ロードマップ)", expanded=False):
+    st.caption("記事は GitHub Pages に移管しました — https://soy-tuber.github.io/nissan-notes/")
     ref_cols = st.columns(2)
     with ref_cols[0]:
-        if st.button("📖 現場と数字で日産を読む", use_container_width=True):
-            st.switch_page("article_nissan_dialogue.py")
-        if st.button("🔋 デュアルコア・モビリティ【改訂版】", use_container_width=True):
-            st.switch_page("article_dual_core.py")
-        if st.button("🇨🇳 スティーブン・マーと中国日産", use_container_width=True):
-            st.switch_page("article_stephen_ma.py")
+        st.link_button("📖 現場と数字で日産を読む",
+                       PAGES_BASE + "nissan_dialogue.html", use_container_width=True)
+        st.link_button("🔋 デュアルコア・モビリティ【改訂版】",
+                       PAGES_BASE + "dual_core_mobility.html", use_container_width=True)
+        st.link_button("🇨🇳 スティーブン・マーと中国日産",
+                       PAGES_BASE + "stephen_ma_china.html", use_container_width=True)
     with ref_cols[1]:
-        if st.button("🤖 Wayve × Nissan ロードマップ", use_container_width=True):
-            st.switch_page("article_wayve.py")
-        if st.button("📄 デュアルコア・モビリティ【初版PDF】", use_container_width=True):
-            st.switch_page("article_shinsho.py")
+        st.link_button("🤖 Wayve × Nissan ロードマップ",
+                       PAGES_BASE + "wayve_roadmap.html", use_container_width=True)
+        st.link_button("📄 デュアルコア・モビリティ【初版PDF】",
+                       PAGES_BASE + "dual_core_shinsho.pdf", use_container_width=True)
 
 prices_raw, fetched_at = fetch_prices()
 prices: dict[str, float] = {
