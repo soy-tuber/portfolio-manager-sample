@@ -1,6 +1,6 @@
 """bottom_analysis の単体テスト (合成データのみ / ネットワーク不要)
 
-実行: python tests/test_bottom_analysis.py
+実行: python tests/run.py
 """
 
 from __future__ import annotations
@@ -208,23 +208,3 @@ def test_ltv_threshold_scan():
     # 85% 抵触水準 ≈ 76,470,588 → 到達なし
     row85 = by_threshold[0.85]
     assert row85['days'] == 0 and row85['last_date'] is None
-
-
-def main() -> int:
-    tests = [(name, fn) for name, fn in sorted(globals().items())
-             if name.startswith('test_') and callable(fn)]
-    failures = 0
-    for name, fn in tests:
-        try:
-            fn()
-        except Exception as error:  # noqa: BLE001
-            failures += 1
-            print(f'FAIL {name}: {type(error).__name__}: {error}')
-        else:
-            print(f'ok   {name}')
-    print(f'\n{len(tests) - failures}/{len(tests)} passed')
-    return 1 if failures else 0
-
-
-if __name__ == '__main__':
-    raise SystemExit(main())
