@@ -18,28 +18,34 @@ DIVIDEND = 15000 * 92 + 50000 * 30 + 20000 * 62 + 25000 * 40             # 5,120
 NISSAN_SHATAI_COST = 25000 * 966                                         # 24,150,000
 
 
-def test_constants_reflect_position_history():
-    # トヨタ売却 (2026-09-18) で 7203 は消えている
-    assert '7203' not in pf.STOCKS
+def test_current_state():
+    """保持するのは現在の状態だけ (約定履歴は持たない)。"""
+    assert not hasattr(pf, 'TRADES')
+    assert not hasattr(pf, 'REALIZED_TRADES')
+    assert not hasattr(pf, 'trade_summary')
+
+    assert '7203' not in pf.STOCKS                   # トヨタは売却済みで不在
     assert pf.COLLAT_CODES == ['2674', '8291', '5869', '7222']
-    # 日産車体 買い増し (2026-09-29): 15,000 → 25,000株、平均取得 966円
+    # 日産車体は買い増し分を含む全25,000株が担保、平均取得 966円
     assert pf.STOCKS['7222']['shares'] == 25000
     assert pf.STOCKS['7222']['avg_cost'] == 966
-    # 買い増しは借り増しで賄った
+    assert '7222' in pf.COLLAT_CODES
     assert pf.LOAN_BALANCE == 80_000_000
     assert pf.CASH_BUFFER == 12_000_000
     assert pf.LOAN_FLOOR == 50_000_000
     assert pf.LOAN_BALANCE > pf.LOAN_FLOOR
 
 
-def test_trade_log_shape():
-    assert [t['date'] for t in pf.TRADES] == ['2026-09-29', '2026-09-18']  # 新しい順
-    assert {t['side'] for t in pf.TRADES} == {'buy', 'sell'}
-    buy = next(t for t in pf.TRADES if t['side'] == 'buy')
-    sell = next(t for t in pf.TRADES if t['side'] == 'sell')
-    assert buy['code'] == '7222' and buy['shares'] == 10000
-    assert buy['gain'] is None            # 買いに確定損益はない
-    assert sell['code'] == '7203' and sell['gain'] == 700_000
+def test_collateral_includes_every_share_of_pledged_stocks():
+    """担保銘柄は保有全株が担保プールに入る (一部だけ差入れはしない)。"""
+    snap = pf.summarize(FALLBACK)
+    expected = sum(pf.STOCKS[c]['shares'] * FALLBACK[c] for c in pf.COLLAT_CODES)
+    assert snap.collateral == expected
+    # 日産車体の寄与は 25,000株ぶん
+    assert 25000 * FALLBACK['7222'] == 25_000_000
+    # 日産(LTV対象外)は含まれない
+    assert pf.NISSAN_CODE not in pf.COLLAT_CODES
+    assert snap.collateral + snap.nissan_value == snap.total_value
 
 
 def test_resolve_prices_falls_back_per_code():
@@ -70,24 +76,6 @@ def test_summarize_accepts_alternative_loan():
     assert snap.room70 == COLLATERAL * 0.70 - 65_000_000
     # 担保・配当は借入に依存しない
     assert snap.collateral == COLLATERAL and snap.total_dividend == DIVIDEND
-
-
-def test_trade_summary_counts_gain_from_sells_only():
-    summary = pf.trade_summary()
-    assert summary['realized_gain'] == 700_000     # 買いの gain=None は無視
-    assert summary['sell_count'] == 1 and summary['buy_count'] == 1
-    assert summary['sold_shares'] == 5000 and summary['bought_shares'] == 10000
-
-
-def test_trade_summary_with_multiple_trades():
-    trades = [
-        {'side': 'buy', 'shares': 1000, 'gain': None},
-        {'side': 'sell', 'shares': 2000, 'gain': 500_000},
-        {'side': 'sell', 'shares': 3000, 'gain': -200_000},
-    ]
-    summary = pf.trade_summary(trades)
-    assert summary['realized_gain'] == 300_000     # 損も合算
-    assert summary['sold_shares'] == 5000 and summary['bought_shares'] == 1000
 
 
 def test_position_costs_covers_only_registered_avg_cost():
