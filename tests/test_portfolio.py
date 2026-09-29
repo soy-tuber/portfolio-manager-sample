@@ -12,21 +12,34 @@ import portfolio as pf  # noqa: E402
 
 # fallback_price をそのまま現値として使ったときの期待値
 FALLBACK = {code: float(info['fallback_price']) for code, info in pf.STOCKS.items()}
-COLLATERAL = 15000 * 2406 + 50000 * 553 + 20000 * 1328 + 15000 * 1000   # 105,300,000
+COLLATERAL = 15000 * 2406 + 50000 * 553 + 20000 * 1328 + 25000 * 1000   # 115,300,000
 NISSAN = 100000 * 381                                                    # 38,100,000
-DIVIDEND = 15000 * 92 + 50000 * 30 + 20000 * 62 + 15000 * 40             # 4,720,000
+DIVIDEND = 15000 * 92 + 50000 * 30 + 20000 * 62 + 25000 * 40             # 5,120,000
+NISSAN_SHATAI_COST = 25000 * 966                                         # 24,150,000
 
 
-def test_constants_reflect_toyota_sale():
+def test_constants_reflect_position_history():
+    # トヨタ売却 (2026-09-18) で 7203 は消えている
     assert '7203' not in pf.STOCKS
     assert pf.COLLAT_CODES == ['2674', '8291', '5869', '7222']
-    assert pf.LOAN_BALANCE == 65_000_000
+    # 日産車体 買い増し (2026-09-29): 15,000 → 25,000株、平均取得 966円
+    assert pf.STOCKS['7222']['shares'] == 25000
+    assert pf.STOCKS['7222']['avg_cost'] == 966
+    # 買い増しは借り増しで賄った
+    assert pf.LOAN_BALANCE == 80_000_000
+    assert pf.CASH_BUFFER == 12_000_000
     assert pf.LOAN_FLOOR == 50_000_000
-    trade = pf.REALIZED_TRADES[0]
-    assert trade['code'] == '7203' and trade['shares'] == 5000
-    assert trade['proceeds'] == 15_000_000 and trade['gain'] == 700_000
-    # 売却代金と返済額が一致していること (借入 8,000万 → 6,500万)
-    assert pf.LOAN_BALANCE + trade['proceeds'] == 80_000_000
+    assert pf.LOAN_BALANCE > pf.LOAN_FLOOR
+
+
+def test_trade_log_shape():
+    assert [t['date'] for t in pf.TRADES] == ['2026-09-29', '2026-09-18']  # 新しい順
+    assert {t['side'] for t in pf.TRADES} == {'buy', 'sell'}
+    buy = next(t for t in pf.TRADES if t['side'] == 'buy')
+    sell = next(t for t in pf.TRADES if t['side'] == 'sell')
+    assert buy['code'] == '7222' and buy['shares'] == 10000
+    assert buy['gain'] is None            # 買いに確定損益はない
+    assert sell['code'] == '7203' and sell['gain'] == 700_000
 
 
 def test_resolve_prices_falls_back_per_code():
@@ -41,64 +54,106 @@ def test_resolve_prices_falls_back_per_code():
 
 def test_summarize():
     snap = pf.summarize(FALLBACK)
-    assert snap.collateral == COLLATERAL
+    assert snap.collateral == COLLATERAL == 115_300_000
     assert snap.nissan_value == NISSAN
     assert snap.total_value == COLLATERAL + NISSAN
     assert snap.total_dividend == DIVIDEND
-    assert round(snap.ltv, 2) == round(65_000_000 / COLLATERAL * 100, 2) == 61.73
-    assert snap.room70 == COLLATERAL * 0.70 - 65_000_000 == 8_710_000
+    assert round(snap.ltv, 2) == 69.38
+    assert snap.room70 == COLLATERAL * 0.70 - 80_000_000 == 710_000
     assert snap.pf_total == COLLATERAL + NISSAN + pf.CASH_BUFFER
-    assert snap.nav == snap.pf_total - 65_000_000 == 84_400_000
+    assert snap.nav == snap.pf_total - 80_000_000 == 85_400_000
 
 
 def test_summarize_accepts_alternative_loan():
-    snap = pf.summarize(FALLBACK, loan=80_000_000)
-    assert round(snap.ltv, 2) == round(80_000_000 / COLLATERAL * 100, 2)
-    assert snap.room70 == COLLATERAL * 0.70 - 80_000_000
+    snap = pf.summarize(FALLBACK, loan=65_000_000)
+    assert round(snap.ltv, 2) == round(65_000_000 / COLLATERAL * 100, 2)
+    assert snap.room70 == COLLATERAL * 0.70 - 65_000_000
     # 担保・配当は借入に依存しない
     assert snap.collateral == COLLATERAL and snap.total_dividend == DIVIDEND
 
 
-def test_realized_summary_reconstructs_pre_sale_ltv():
-    realized = pf.realized_summary(COLLATERAL)
-    assert realized['repaid'] == 15_000_000
-    assert realized['gain'] == 700_000
-    assert realized['pre_loan'] == 80_000_000
-    # 売却前: 借入8,000万 / 担保 105,300,000 + 15,000,000
-    assert round(realized['pre_ltv'], 1) == 66.5
-    assert round(realized['ltv'], 1) == 61.7
-    assert round(realized['ltv_delta'], 1) == -4.8
-    assert realized['ltv_delta'] < 0          # 返済なので必ず改善
+def test_trade_summary_counts_gain_from_sells_only():
+    summary = pf.trade_summary()
+    assert summary['realized_gain'] == 700_000     # 買いの gain=None は無視
+    assert summary['sell_count'] == 1 and summary['buy_count'] == 1
+    assert summary['sold_shares'] == 5000 and summary['bought_shares'] == 10000
 
 
-def test_realized_summary_ignores_non_repayment_uses():
+def test_trade_summary_with_multiple_trades():
     trades = [
-        {'proceeds': 3_000_000, 'gain': 100_000, 'use': '現金化'},
-        {'proceeds': 5_000_000, 'gain': -200_000, 'use': '借入返済'},
+        {'side': 'buy', 'shares': 1000, 'gain': None},
+        {'side': 'sell', 'shares': 2000, 'gain': 500_000},
+        {'side': 'sell', 'shares': 3000, 'gain': -200_000},
     ]
-    realized = pf.realized_summary(COLLATERAL, trades=trades)
-    assert realized['repaid'] == 5_000_000     # 現金化ぶんは返済に数えない
-    assert realized['gain'] == -100_000        # 損益は全件合算
+    summary = pf.trade_summary(trades)
+    assert summary['realized_gain'] == 300_000     # 損も合算
+    assert summary['sold_shares'] == 5000 and summary['bought_shares'] == 1000
 
 
-def test_realized_summary_handles_zero_collateral():
-    realized = pf.realized_summary(0.0, trades=[])
-    assert math.isnan(realized['ltv'])
-    assert realized['repaid'] == 0 and realized['gain'] == 0
+def test_position_costs_covers_only_registered_avg_cost():
+    rows, totals = pf.position_costs(FALLBACK)
+    assert [r['code'] for r in rows] == ['7222']   # avg_cost を持つのは日産車体だけ
+    row = rows[0]
+    assert row['shares'] == 25000 and row['avg_cost'] == 966.0
+    assert row['cost'] == NISSAN_SHATAI_COST == 24_150_000
+    assert row['value'] == 25_000_000
+    assert row['pl'] == 850_000
+    assert round(row['pl_pct'], 2) == 3.52
+    assert totals['cost'] == row['cost'] and totals['pl'] == row['pl']
+    assert totals['covered'] == 1 and totals['total_positions'] == len(pf.STOCKS)
+
+
+def test_position_costs_tracks_losses():
+    prices = dict(FALLBACK, **{'7222': 800.0})
+    rows, totals = pf.position_costs(prices)
+    assert rows[0]['pl'] == 25000 * 800 - NISSAN_SHATAI_COST == -4_150_000
+    assert totals['pl_pct'] < 0
 
 
 def test_threshold_progress():
     steps = pf.threshold_progress(COLLATERAL)
     assert [s['threshold'] for s in steps] == [0.60, 0.70, 0.85]
-    assert [s['icon'] for s in steps] == ['🟢', '🟡', '🔴']
-    by_threshold = {s['threshold']: s for s in steps}
-    assert by_threshold[0.60]['cap'] == COLLATERAL * 0.60 == 63_180_000
-    # 現在LTV 61.7% なので 60%枠は超過 (fill > 1)、70%/85%枠は未達
-    assert by_threshold[0.60]['fill'] > 1.0
-    assert by_threshold[0.70]['fill'] < 1.0
-    assert round(by_threshold[0.85]['fill'], 4) == round(65_000_000 / (COLLATERAL * 0.85), 4)
+    by = {s['threshold']: s for s in steps}
+
+    # 60%枠はすでに超過
+    assert by[0.60]['cap'] == COLLATERAL * 0.60 == 69_180_000
+    assert by[0.60]['room'] < 0 and by[0.60]['fill'] > 1.0
+
+    # 70%枠は残り710万。担保が0.9%下げると抵触水準 (借入/0.7) に届く
+    assert by[0.70]['room'] == 710_000
+    assert round(by[0.70]['trigger']) == round(80_000_000 / 0.70) == 114_285_714
+    assert round(by[0.70]['drop'] * 100, 2) == -0.88
+
+    # 85%枠まではまだ18%の余地
+    assert round(by[0.85]['drop'] * 100, 1) == -18.4
+    assert round(by[0.85]['fill'], 4) == round(80_000_000 / (COLLATERAL * 0.85), 4)
 
 
 def test_threshold_progress_handles_zero_collateral():
     steps = pf.threshold_progress(0.0)
     assert all(math.isinf(s['fill']) for s in steps)
+    assert all(math.isnan(s['drop']) for s in steps)
+
+
+def test_ltv_status_bands_point_at_the_next_line():
+    # バンドの色は「超えた線」ではなく「次に向かう線」で決まる
+    assert pf.ltv_status(55.0)['icon'] == '🟢'
+    assert pf.ltv_status(55.0)['label'] == '目標レンジ内'
+    assert pf.ltv_status(55.0)['next_threshold'] == 0.60
+
+    warned = pf.ltv_status(69.38)
+    assert warned['icon'] == '🟡' and warned['label'] == '60%超過'
+    assert warned['next_threshold'] == 0.70 and warned['next_label'] == '警告'
+
+    serious = pf.ltv_status(72.0)
+    assert serious['icon'] == '🔴' and serious['next_threshold'] == 0.85
+
+    worst = pf.ltv_status(90.0)
+    assert worst['icon'] == '🔴' and worst['next_threshold'] is None
+    assert worst['breached'] == [0.60, 0.70, 0.85]
+
+
+def test_ltv_status_boundaries_are_inclusive():
+    # ちょうど 60.0% は「60%超過」側に入れる (枠を使い切っている)
+    assert pf.ltv_status(60.0)['label'] == '60%超過'
+    assert pf.ltv_status(59.99)['label'] == '目標レンジ内'
