@@ -29,16 +29,13 @@ LOAN_FLOOR = 50_000_000         # 下限 5,000万
 CASH_BUFFER = 12_000_000        # 1,200万
 ANNUAL_ADD_BUDGET = 10_000_000  # 日産買い増し 年1,000万ペース
 
-# LTV しきい値 (Rakuten Bank) と表示色。
-# 色はステータス配色の固定値 (good / warning / critical)。
-# Light / Dark どちらでも判読でき、記号+ラベル+位置でも区別できるようにしている
-# (色単独に意味を持たせない)。
+# LTV しきい値 (Rakuten Bank)。表示色は theme.STATUS が持つ
+# (このモジュールは数字だけを扱い、見た目には関与しない)。
 LTV_THRESHOLDS = [
-    (0.60, '🟢', '通常', '#0ca30c'),
-    (0.70, '🟡', '警告', '#fab219'),
-    (0.85, '🔴', '強制決済', '#d03b3b'),
+    (0.60, '🟢', '通常'),
+    (0.70, '🟡', '警告'),
+    (0.85, '🔴', '強制決済'),
 ]
-SERIES_COLOR = '#2a78d6'   # カテゴリ配色スロット1 (blue)
 
 PERIOD_OPTIONS = {'1年': '1y', '2年': '2y', '5年': '5y', '10年': '10y'}
 
@@ -130,14 +127,13 @@ def threshold_progress(collateral: float, loan: float = LOAN_BALANCE) -> list[di
     drop    = 現在の担保からそこまでの変化率 (負なら余裕、正なら超過済み)。
     """
     steps = []
-    for threshold, icon, label, color in LTV_THRESHOLDS:
+    for threshold, icon, label in LTV_THRESHOLDS:
         cap = collateral * threshold
         trigger = loan / threshold
         steps.append({
             'threshold': threshold,
             'icon': icon,
             'label': label,
-            'color': color,
             'cap': cap,                                     # 借りられる上限
             'room': cap - loan,                             # 枠の残り (円)
             'fill': loan / cap if cap else float('inf'),    # 枠の消化率

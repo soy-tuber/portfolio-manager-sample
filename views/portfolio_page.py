@@ -4,6 +4,8 @@ import pandas as pd
 import streamlit as st
 
 import portfolio as pf
+import skyline as sk
+import theme
 from ui import load_prices
 
 st.title("📊 ポートフォリオ管理")
@@ -38,13 +40,33 @@ for code, info in pf.STOCKS.items():
         '性格': info['role'],
     })
 rows.append({
-    '銘柄': '**合計**', '株数': '', '株価': '', '平均取得 (¥)': '',
-    '時価 (万)': f"**{snap.total_value/10000:,.0f}**",
-    '含み損益 (万)': f"**{cost_totals['pl']/10000:+,.0f}**" if cost_rows else '—',
-    '配当 (¥)': f"**{snap.total_dividend:,}**",
+    '銘柄': '合計', '株数': '', '株価': '', '平均取得 (¥)': '',
+    '時価 (万)': f"{snap.total_value/10000:,.0f}",
+    '含み損益 (万)': f"{cost_totals['pl']/10000:+,.0f}" if cost_rows else '—',
+    '配当 (¥)': f"{snap.total_dividend:,}",
     '比率': '100%', '性格': '',
 })
 st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+
+# --- スカイライン: 保有銘柄の時価を高さにしたビル群 ---
+# 高さは時価に線形比例し 0 を基準にする (見栄えのための圧縮はしない)。
+st.markdown(sk.to_img_tag(sk.render(
+    [
+        sk.Building(
+            key=code,
+            label=info['name'],
+            sublabel=f"{info['shares']:,}株",
+            value=info['shares'] * prices[code],
+            value_text=f"{info['shares'] * prices[code] / 10000:,.0f}万",
+            color=(theme.SKYLINE_COLLAT if code in pf.COLLAT_CODES
+                   else theme.SKYLINE_OTHER),
+            category='担保' if code in pf.COLLAT_CODES else 'LTV対象外',
+        )
+        for code, info in pf.STOCKS.items()
+    ],
+    text=theme.TEXT, muted=theme.TEXT_MUTED, ground=theme.BORDER,
+    title='保有銘柄の時価',
+), alt='保有銘柄の時価を高さで表したスカイライン'), unsafe_allow_html=True)
 
 if cost_rows:
     st.caption(

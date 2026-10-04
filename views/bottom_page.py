@@ -6,6 +6,7 @@ import streamlit as st
 import bottom_analysis as ba
 import market
 import portfolio as pf
+import theme
 from ui import fmt_date, load_prices, yen_man
 
 st.title("📉 底値分析")
@@ -67,9 +68,9 @@ if pool is not None:
 
     scan = ba.ltv_threshold_scan(
         pool_low, current_pool=snap.collateral, loan=pf.LOAN_BALANCE,
-        thresholds=tuple(t for t, _i, _l, _c in pf.LTV_THRESHOLDS),
+        thresholds=tuple(t for t, _i, _l in pf.LTV_THRESHOLDS),
     )
-    meta = {t: (icon, label, color) for t, icon, label, color in pf.LTV_THRESHOLDS}
+    meta = {t: (icon, label) for t, icon, label in pf.LTV_THRESHOLDS}
 
     st.dataframe(pd.DataFrame([{
         'しきい値': f"{meta[row['threshold']][0]} {row['threshold']*100:.0f}%"
@@ -88,9 +89,10 @@ if pool is not None:
 
     # 推移チャート (単位は万円のみ = 1軸。しきい値線は記号+ラベル+高さでも区別できる)
     chart = pd.DataFrame({'担保プール 終値 (万)': pool['pool_close'] / 10000})
-    colors = [pf.SERIES_COLOR]
+    colors = [theme.SERIES]
     for row in scan:
-        icon, _label, color = meta[row['threshold']]
+        icon, _label = meta[row['threshold']]
+        color = theme.STATUS[row['threshold']]
         chart[f"{icon} {row['threshold']*100:.0f}%抵触水準 "
               f"{row['trigger_pool']/10000:,.0f}万"] = row['trigger_pool'] / 10000
         colors.append(color)

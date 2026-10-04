@@ -9,8 +9,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import test_bottom_analysis  # noqa: E402
 import test_portfolio  # noqa: E402
+import test_skyline  # noqa: E402
 
-MODULES = [test_portfolio, test_bottom_analysis]
+MODULES = [test_portfolio, test_bottom_analysis, test_skyline]
 
 
 def main() -> int:

@@ -3,3 +3,36 @@ gatherUsageStats = false
 
 [server]
 headless = true
+
+# サイバーパンク (ダーク専用)。色の根拠と検証結果は theme.py のドキュメント参照。
+[theme]
+base = "dark"
+backgroundColor = "#070b14"
+secondaryBackgroundColor = "#0d1424"
+textColor = "#d8e6f2"
+primaryColor = "#00d9ff"
+linkColor = "#00d9ff"
+borderColor = "#1b2b45"
+dataframeBorderColor = "#1b2b45"
+dataframeHeaderBackgroundColor = "#0d1424"
+codeBackgroundColor = "#0d1424"
+codeTextColor = "#00d9ff"
+baseRadius = "none"
+buttonRadius = "none"
+showWidgetBorder = true
+font = "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+headingFont = "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+codeFont = "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+# チャートのマーク色。明度バンド内で CVD 検証済み (theme.py 参照)
+chartCategoricalColors = ["#0da4cf", "#fe29ab", "#b88a01", "#087736", "#d90625", "#a076fe"]
+
+# 警告・エラー等の意味色もネオン寄りに揃える
+greenColor = "#087736"
+orangeColor = "#b88a01"
+redColor = "#d90625"
+blueColor = "#0da4cf"
+
+[theme.sidebar]
+backgroundColor = "#0d1424"
+secondaryBackgroundColor = "#111b30"
+borderColor = "#1b2b45"
